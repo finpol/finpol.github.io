@@ -1,0 +1,36 @@
+{
+  "name": "financiamiento-elecciones-2014",
+  "version": "1.0.0",
+  "description": "Esta visualización muestra las donaciones recibidas declaradas por los partidos políticos para cada una de las listas políticas en las Elecciones Nacionales uruguayas del año 2014.",
+  "main": "src/js/main.js",
+  "scripts": {
+    "jshint": "jshint src/js/*.js",
+    "clean": "rm -rf dist",
+    "copy": "cp -R src dist",
+    "build": "npm run clean && npm run copy",
+    "deploy": "gh-pages -d dist"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://bryant1410@github.com/bryant1410/financiamiento-elecciones-2014.git"
+  },
+  "author": "Santiago Castro",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/bryant1410/financiamiento-elecciones-2014/issues"
+  },
+  "homepage": "https://github.com/bryant1410/financiamiento-elecciones-2014",
+  "dependencies": {
+    "jquery": "^1.12.2"
+  },
+  "devDependencies": {
+    "browserify": "^13.1.0",
+    "browserify-shim": "^3.8.12",
+    "gh-pages": "^0.11.0",
+    "htmlmin": "0.0.6",
+    "imagemin": "^5.2.2",
+    "jshint": "^2.9.2",
+    "uglify": "^0.1.5",
+    "watch": "^0.19.1"
+  }
+}

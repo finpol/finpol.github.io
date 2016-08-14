@@ -8,7 +8,7 @@
     "clean": "rm -rf dist",
     "copy": "cp -R src dist",
     "build": "npm run clean && npm run copy",
-    "deploy": "gh-pages -d dist"
+    "deploy": "npm run build && gh-pages -d dist"
   },
   "repository": {
     "type": "git",

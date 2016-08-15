@@ -10,11 +10,8 @@
     <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
 
     <link rel="stylesheet" href="css/normalize.css">
-    <link rel="stylesheet" type="text/css" href="js/fancybox/jquery.fancybox.css"/>
     <link rel="stylesheet" href="css/style.css" type="text/css" media="screen"/>
     <link rel="stylesheet" media="screen and (max-height: 770px)" href="css/tablet.css"/>
-
-    <script src="js/vendor/modernizr-2.8.3.min.js"></script>
 </head>
 
 <body>
@@ -31,12 +28,12 @@
         <div class="info cf">
             <dl>
                 <dt class="moreinformation"></dt>
-                <dd class="line"><a href="#information" class="line fb">More about this visualisation</a></dd>
+                <dd class="line"><a href="#information" class="line fb">Más información</a></dd>
             </dl>
         </div>
         <div id="legend">
             <div class="box">
-                <h2>Legend:</h2>
+                <h2>Leyenda:</h2>
                 <dl>
                     <dt class="node"></dt>
                     <dd></dd>
@@ -49,13 +46,13 @@
         </div>
         <div class="b1">
             <form>
-                <div id="search" class="cf"><h2>Search:</h2>
-                    <input type="text" name="search" title="Nombre" value="Search by name" class="empty"/>
+                <div id="search" class="cf"><h2>Buscar:</h2>
+                    <input type="text" name="search" title="Nombre" value="Buscar por nombre" class="empty"/>
                     <div class="state"></div>
                     <div class="results"></div>
                 </div>
-                <div class="cf" id="attributeselect"><h2>Group Selector:</h2>
-                    <div class="select">Select Group</div>
+                <div class="cf" id="attributeselect"><h2>Selector de grupo:</h2>
+                    <div class="select">Seleccionar grupo</div>
                     <div class="list cf"></div>
                 </div>
             </form>
@@ -80,15 +77,15 @@
 <div id="attributepane">
     <div class="text">
         <div title="Close" class="left-close returntext">
-            <div class="c cf"><span>Return to the full network</span></div>
+            <div class="c cf"><span>Volver a la red completa</span></div>
         </div>
         <div class="headertext">
-            <span>Information Pane</span>
+            <span>Panel de información</span>
         </div>
         <div class="nodeattributes">
             <div class="name"></div>
             <div class="data"></div>
-            <div class="p">Connections:</div>
+            <div class="p">Conexiones:</div>
             <div class="link">
                 <ul>
                 </ul>
@@ -106,15 +103,9 @@
     </a>
 </div>
 
-<!--[if IE]>
-<script type="text/javascript" src="js/excanvas.js"></script><![endif]--> <!-- js/default.js -->
+<script src="https://code.jquery.com/jquery-3.1.0.min.js"></script>
+<script>window.jQuery || document.write('<script src="js/vendor/jquery.min.js"><\/script>')</script>
 
-<script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
-<script>window.jQuery || document.write('<script src="js/vendor/jquery-1.12.4.min.js"><\/script>')</script>
-
-<script src="js/sigma/sigma.min.js" type="text/javascript" language="javascript"></script>
-<script src="js/sigma/sigma.parseJson.js" type="text/javascript" language="javascript"></script>
-<script src="js/fancybox/jquery.fancybox.pack.js" type="text/javascript" language="javascript"></script>
 <script src="js/main.js" type="text/javascript" language="javascript"></script>
 
 <!--suppress JSUnresolvedFunction -->

@@ -4,11 +4,13 @@
   "description": "Esta visualización muestra las donaciones recibidas declaradas por los partidos políticos para cada una de las listas políticas en las Elecciones Nacionales uruguayas del año 2014.",
   "main": "src/js/main.js",
   "scripts": {
-    "jshint": "jshint src/js/*.js",
-    "clean": "rm -rf dist",
+    "lint": "jshint src/js/*.js",
+    "clean": "rimraf dist",
     "copy": "cp -R src dist",
-    "build": "npm run clean && npm run copy",
-    "deploy": "npm run build && gh-pages -d dist"
+    "prebuild": "npm run clean",
+    "build": "npm run copy",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d dist"
   },
   "repository": {
     "type": "git",
@@ -30,6 +32,7 @@
     "htmlmin": "0.0.6",
     "imagemin": "^5.2.2",
     "jshint": "^2.9.2",
+    "rimraf": "^2.5.4",
     "uglify": "^0.1.5",
     "watch": "^0.19.1"
   }

@@ -113,14 +113,12 @@ function initSigma(config) {
     drawProps = {
       defaultLabelColor: "#000",
       defaultLabelSize: 14,
-      defaultLabelBGColor: "#ddd",
       defaultHoverLabelBGColor: "#002147",
       defaultLabelHoverColor: "#fff",
       labelThreshold: 10,
       defaultEdgeType: "curve",
       hoverFontStyle: "bold",
-      fontStyle: "bold",
-      activeFontStyle: "bold"
+      fontStyle: "bold"
     };
   }
 
@@ -146,8 +144,9 @@ function initSigma(config) {
     };
   }
 
-  _sigma = sigma.init(document.getElementById("sigma-canvas"))
-    .drawingProperties(drawProps)
+  //noinspection JSPotentiallyInvalidConstructorUsage,JSUnresolvedFunction
+  _sigma = new sigma(document.getElementById('sigma-canvas'))
+    .settings(drawProps)
     .graphProperties(graphProps)
     .mouseProperties(mouseProps);
   _sigma.active = false;

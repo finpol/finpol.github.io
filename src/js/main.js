@@ -1,20 +1,23 @@
+'use strict';
+
 import sigma from "sigma";
 import $ from "jquery";
 import "fancybox";
 
 var _sigma;
 var $GP;
-var config = {};
 
-$.getJSON("config.json", data => {
-  config = data;
+$(document).ready(() => {
+  $.getJSON("config.json", data => {
+    var config = data;
 
-  if (config.type != "network") {
-    alert("Invalid configuration settings.");
-    return;
-  }
+    if (config.type != "network") {
+      alert("Invalid configuration settings.");
+      return;
+    }
 
-  $(document).ready(setupGUI(config));
+    setupGUI(config);
+  });
 });
 
 Object.size = obj => {
@@ -104,80 +107,34 @@ function setupGUI(config) {
 }
 
 function initSigma(config) {
-  var data = config.data;
+  //noinspection JSPotentiallyInvalidConstructorUsage
+  _sigma = new sigma({
+    container: $('#sigma-canvas'),
+    settings: 'config.sigma.settings'
+  });
 
-  var drawProps;
-  if (config.sigma && config.sigma.drawingProperties) {
-    drawProps = config.sigma.drawingProperties;
-  } else {
-    drawProps = {
-      defaultLabelColor: "#000",
-      defaultLabelSize: 14,
-      defaultHoverLabelBGColor: "#002147",
-      defaultLabelHoverColor: "#fff",
-      labelThreshold: 10,
-      defaultEdgeType: "curve",
-      hoverFontStyle: "bold",
-      fontStyle: "bold"
-    };
-  }
-
-  var graphProps;
-  if (config.sigma && config.sigma.graphProperties) {
-    graphProps = config.sigma.graphProperties;
-  } else {
-    graphProps = {
-      minNodeSize: 1,
-      maxNodeSize: 7,
-      minEdgeSize: 0.2,
-      maxEdgeSize: 0.5
-    };
-  }
-
-  var mouseProps;
-  if (config.sigma && config.sigma.mouseProperties) {
-    mouseProps = config.sigma.mouseProperties;
-  } else {
-    mouseProps = {
-      minRatio: 0.75,
-      maxRatio: 20,
-    };
-  }
-
-  //noinspection JSPotentiallyInvalidConstructorUsage,JSUnresolvedFunction
-  _sigma = new sigma(document.getElementById('sigma-canvas'))
-    .settings(drawProps)
-    .graphProperties(graphProps)
-    .mouseProperties(mouseProps);
   _sigma.active = false;
   _sigma.neighbors = {};
   _sigma.detail = false;
 
-  var dataReady = () => {
+  $.getJSON(config.data, data => {
+    _sigma.graph.read(data);
+
     _sigma.clusters = {};
 
-    _sigma.iterNodes(node => { // This is where we populate the array used for the group select box.
-        // Note: index may not be consistent for all nodes. Should calculate each time.
-        // alert(JSON.stringify(node.attr.attributes[5].val));
-        // alert(node.x);
-        if (!_sigma.clusters[node.color]) {
-          _sigma.clusters[node.color] = [];
-        }
-        _sigma.clusters[node.color].push(node.id);//SAH: push id not label
+    for (var node of _sigma.graph.nodes()) {
+      if (!_sigma.clusters[node.color]) {
+        _sigma.clusters[node.color] = [];
       }
-    );
+      _sigma.clusters[node.color].push(node.id);
+    }
 
-    _sigma.bind("upnodes", node => nodeActive(node.content[0]));
+    _sigma.bind("upNodes", node => nodeActive(node.content[0]));
 
-    _sigma.draw();
     configSigmaElements(config);
-  };
 
-  if (data.indexOf("gexf") > 0 || data.indexOf("xml") > 0) {
-    _sigma.parseGexf(data, dataReady);
-  } else {
-    _sigma.parseJson(data, dataReady);
-  }
+    _sigma.refresh();
+  });
 }
 
 function configSigmaElements(config) {
@@ -185,10 +142,11 @@ function configSigmaElements(config) {
 
   if (config.features.hoverBehavior == "dim") {
     var greyColor = '#ccc';
-    _sigma.bind('overnodes', event => {
+    _sigma.bind('overNodes', event => {
       var nodes = event.content;
       var neighbors = {};
-      _sigma.iterEdges(edge => {
+
+      for (var edge of _sigma.graph.edges()) {
         if (nodes.indexOf(edge.source) < 0 && nodes.indexOf(edge.target) < 0) {
           if (!edge.attr['grey']) {
             edge.attr['true_color'] = edge.color;
@@ -202,56 +160,62 @@ function configSigmaElements(config) {
           neighbors[edge.source] = 1;
           neighbors[edge.target] = 1;
         }
-      }).iterNodes(node => {
-        if (!neighbors[node.id]) {
-          if (!node.attr['grey']) {
-            node.attr['true_color'] = node.color;
-            node.color = greyColor;
-            node.attr['grey'] = 1;
-          }
-        } else {
+      }
+
+      for (var node of _sigma.graph.nodes()) {
+        if (neighbors[node.id]) {
           node.color = node.attr['grey'] ? node.attr['true_color'] : node.color;
           node.attr['grey'] = 0;
+        } else if (!node.attr['grey']) {
+          node.attr['true_color'] = node.color;
+          node.color = greyColor;
+          node.attr['grey'] = 1;
         }
-      }).draw(2, 2, 2);
-    }).bind('outnodes', () => {
-      _sigma.iterEdges(edge => {
-        edge.color = edge.attr['grey'] ? edge.attr['true_color'] : edge.color;
-        edge.attr['grey'] = 0;
-      }).iterNodes(node => {
-        node.color = node.attr['grey'] ? node.attr['true_color'] : node.color;
-        node.attr['grey'] = 0;
-      }).draw(2, 2, 2);
+      }
     });
 
+    _sigma.bind('outNodes', () => {
+      for (var edge of _sigma.graph.edges()) {
+        edge.color = edge.attr['grey'] ? edge.attr['true_color'] : edge.color;
+        edge.attr['grey'] = 0;
+      }
+
+      for (var node of _sigma.graph.nodes()) {
+        node.color = node.attr['grey'] ? node.attr['true_color'] : node.color;
+        node.attr['grey'] = 0;
+      }
+    });
   } else if (config.features.hoverBehavior == "hide") {
-    _sigma.bind('overnodes', event => {
+    _sigma.bind('overNodes', event => {
       var nodes = event.content;
       var neighbors = {};
-      _sigma.iterEdges(edge => {
+      for (var edge of _sigma.graph.edges()) {
         if (nodes.indexOf(edge.source) >= 0 || nodes.indexOf(edge.target) >= 0) {
           neighbors[edge.source] = 1;
           neighbors[edge.target] = 1;
         }
-      }).iterNodes(node => {
-        if (!neighbors[node.id]) {
-          node.hidden = 1;
-        } else {
-          node.hidden = 0;
-        }
-      }).draw(2, 2, 2);
-    }).bind('outnodes', () => {
-      _sigma.iterEdges(edge => edge.hidden = 0)
-        .iterNodes(node => node.hidden = 0)
-        .draw(2, 2, 2);
+      }
+
+      for (var node of _sigma.graph.nodes()) {
+        node.hidden = neighbors[node.id] ? 0 : 1;
+      }
     });
 
+    _sigma.bind('outNodes', () => {
+      for (var edge of _sigma.graph.edges()) {
+        edge.hidden = 0;
+      }
+
+      for (var node of _sigma.graph.nodes()) {
+        node.hidden = 0;
+      }
+    });
   }
   $GP.bg = $(_sigma._core.domElements.bg);
   $GP.bg2 = $(_sigma._core.domElements.bg2);
   var target = [];
   var x = 1;
-  for (var cluster in _sigma.clusters) {
+  for (var cluster of _sigma.clusters) {
     target.push('<div style="line-height:12px"><a href="#' + cluster + '"><div style="width:40px;height:12px;'
       + 'border:1px solid #fff;background:' + cluster + ';display:inline-block"></div>'
       + ' Group ' + (x++) + ' (' + cluster.length + ' members)</a></div>');
@@ -365,7 +329,7 @@ function Search(searchElem) {
           });
         }
       });
-      output = ["<b>Resultados encontrados: </b>"];
+      var output = ["<b>Resultados encontrados: </b>"];
       if (foundNodes.length == 0) {
         if (!showCluster(text)) {
           output.push("<i>No se encontró ningún nodo.</i>");

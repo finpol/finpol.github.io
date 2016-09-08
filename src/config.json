@@ -27,7 +27,7 @@
     "imageAttribute": false
   },
   "sigma": {
-    "drawingProperties": {
+    "settings": {
       "defaultEdgeType": "curve",
       "defaultHoverLabelBGColor": "#002147",
       "defaultLabelBGColor": "#ddd",
@@ -37,17 +37,13 @@
       "defaultLabelHoverColor": "#fff",
       "fontStyle": "bold",
       "hoverFontStyle": "bold",
-      "defaultLabelSize": 14
-    },
-    "graphProperties": {
+      "defaultLabelSize": 14,
       "maxEdgeSize": 0.5,
       "minEdgeSize": 0.2,
       "minNodeSize": 1,
-      "maxNodeSize": 7
-    },
-    "mouseProperties": {
-      "maxRatio": 20,
-      "minRatio": 0.75
+      "maxNodeSize": 7,
+      "zoomMax": 20,
+      "zoomMin": 0.75
     }
   }
 }

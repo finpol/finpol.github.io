@@ -2,6 +2,7 @@
   "name": "financiamiento-elecciones-2014",
   "version": "1.0.0",
   "description": "Esta visualización muestra las donaciones recibidas declaradas por los partidos políticos para cada una de las listas políticas en las Elecciones Nacionales uruguayas del año 2014.",
+  "private": true,
   "main": "server.js",
   "scripts": {
     "lint": "jshint src/js/main.js",

@@ -14,7 +14,7 @@
     "build:js": "browserify src/js/main.js | uglifyjs -mc --screw-ie8 > dist/js/main.js",
     "build:css": "uglifycss --ugly-comments src/css/style.css > dist/css/style.css",
     "build:image": "imagemin src/images/* -o dist/images/",
-    "build:json": "json-minify src/config.json > dist/config.json && json-minify src/data.json > dist/data.json",
+    "build:json": "json-minify src/data.json > dist/data.json",
     "build": "npm run build:copy && npm run build:copy-jq && npm run build:html && npm run build:js && npm run build:css && npm run build:image && npm run build:json",
     "watch:bundle": "watchify src/js/main.js -o dist/js/main.js -v",
     "start": "nodemon --exec 'npm run build && babel-node server.js' --ignore dist/",

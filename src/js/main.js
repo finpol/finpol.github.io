@@ -44,14 +44,14 @@ function initSigma() {
   _sigma = new sigma({
     container: $('#sigma-canvas'),
     settings: {
-      "defaultEdgeType": "curve",
-      "defaultHoverLabelBGColor": "#002147",
-      "labelThreshold": 10,
-      "defaultLabelHoverColor": "#fff",
-      "fontStyle": "bold",
-      "hoverFontStyle": "bold",
-      "zoomMax": 20,
-      "zoomMin": 0.75
+      defaultEdgeType: "curve",
+      defaultHoverLabelBGColor: "#002147",
+      labelThreshold: 10,
+      defaultLabelHoverColor: "#fff",
+      fontStyle: "bold",
+      hoverFontStyle: "bold",
+      zoomMax: 20,
+      zoomMin: 0.75
     }
   });
 
@@ -67,7 +67,7 @@ function initSigma() {
 
     //noinspection JSUnresolvedFunction
     for (var node of _sigma.graph.nodes()) {
-      if (!_sigma.clusters[node.color]) {
+      if (!(node.color in _sigma.clusters)) {
         _sigma.clusters[node.color] = [];
       }
       _sigma.clusters[node.color].push(node.id);
@@ -87,9 +87,9 @@ function configSigmaElements() {
   var clustersHtml = [];
   var clusterNumber = 1;
   for (var cluster of _sigma.clusters) {
-    clustersHtml.push('<div style="line-height:12px"><a href="#' + cluster + '"><div style="width:40px;height:12px;'
-      + 'border:1px solid #fff;background:' + cluster + ';display:inline-block"></div>'
-      + ' Group ' + (clusterNumber++) + ' (' + cluster.length + ' members)</a></div>');
+    clustersHtml.push(`<div style="line-height:12px"><a href="#${cluster}"><div style="width:40px;height:12px;
+      border:1px solid #fff;background:${cluster};display:inline-block"></div>
+      Group ${clusterNumber++} (${cluster.length} members)</a></div>`);
   }
   $GP.cluster.content(clustersHtml.join(""));
 
@@ -192,7 +192,7 @@ function Search(searchElem) {
         nodeActive(foundNodes[0].id);
         if (foundNodes.length > 1) {
           for (var foundNode of foundNodes) {
-            output.push('<a href="#' + foundNode.label + '" onclick="nodeActive(\'' + foundNode.id + "')\">" + foundNode.label + "</a>");
+            output.push(`<a href="#${foundNode.label}" onclick="nodeActive('${foundNode.id}')">${foundNode.label}</a>`);
           }
         }
       }
@@ -309,9 +309,9 @@ function nodeActive(nodeId) {
     neighbors.sort((node1, node2) => node1.group.toLowerCase().localeCompare(node2.group.toLowerCase())
         || node1.name.toLowerCase().localeCompare(node2.name.toLowerCase()));
     for (neighbor in neighbors) {
-      neighborsHtmlList.push('<li class="membership"><!--suppress JSUnresolvedFunction -->'
-        + '<a href="#' + neighbor.name + '"' + ' onclick=\"nodeActive(\'' + neighbor.id + '\')"'
-        + ' onmouseout="_sigma.refresh()">' + neighbor.name + "</a></li>");
+      neighborsHtmlList.push(`<li class="membership"><!--suppress JSUnresolvedFunction -->
+        <a href="#${neighbor.name}" onclick="nodeActive('${neighbor.id}')"
+        onmouseout="_sigma.refresh()">${neighbor.name}</a></li>`);
     }
     return neighborsHtmlList;
   };
@@ -374,9 +374,9 @@ function showCluster(clusterName) {
         clusterNode.hidden = false;
         clusterNode.attr.lineWidth = false;
         clusterNode.attr.color = clusterNode.color;
-        clusterHiddenNodesHtmlList.push('<li class="membership"><!--suppress JSUnresolvedFunction --><a href="#'
-          + clusterNode.label + '" onclick=\"nodeActive(\'' + clusterNode.id + '\')" onmouseout="_sigma.refresh()">'
-          + clusterNode.label + "</a></li>");
+        clusterHiddenNodesHtmlList.push(`<li class="membership"><!--suppress JSUnresolvedFunction --><a href="#
+          ${clusterNode.label}" onclick="nodeActive('${clusterNode.id}')" onmouseout="_sigma.refresh()">
+          ${clusterNode.label}</a></li>`);
       }
     }
     _sigma.clusters[clusterName] = clusterHiddenNodesIds;

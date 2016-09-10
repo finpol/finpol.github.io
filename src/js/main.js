@@ -2,20 +2,12 @@
 
 import sigma from "sigma";
 import $ from "jquery";
-import "fancybox";
+import fb from "fancybox";
 
-var _sigma;
-var $GP;
+fb($);
 
-Object.size = obj => {
-  var size = 0;
-  for (var key in obj) {
-    if (obj.hasOwnProperty(key)) {
-      size++;
-    }
-  }
-  return size;
-};
+let _sigma;
+let $GP;
 
 $(document).ready(() => setupGUI());
 
@@ -66,7 +58,7 @@ function initSigma() {
     _sigma.clusters = {};
 
     //noinspection JSUnresolvedFunction
-    for (var node of _sigma.graph.nodes()) {
+    for (let node of _sigma.graph.nodes()) {
       if (!(node.color in _sigma.clusters)) {
         _sigma.clusters[node.color] = [];
       }
@@ -84,12 +76,12 @@ function initSigma() {
 }
 
 function configSigmaElements() {
-  var clustersHtml = [];
-  var clusterNumber = 1;
-  for (var cluster of _sigma.clusters) {
-    clustersHtml.push(`<div style="line-height:12px"><a href="#${cluster}"><div style="width:40px;height:12px;
-      border:1px solid #fff;background:${cluster};display:inline-block"></div>
-      Group ${clusterNumber++} (${cluster.length} members)</a></div>`);
+  let clustersHtml = [];
+  let clusterNumber = 1;
+  for (let clusterId of Object.keys(_sigma.clusters)) {
+    clustersHtml.push(`<div style="line-height:12px"><a href="#${clusterId}"><div style="width:40px;height:12px;
+      border:1px solid #fff;background:${clusterId};display:inline-block"></div>
+      Group ${clusterNumber++} (${clusterId.length} members)</a></div>`);
   }
   $GP.cluster.content(clustersHtml.join(""));
 
@@ -101,7 +93,7 @@ function configSigmaElements() {
   });
 
   $("#zoom").find("div.z").each(() => {
-    var rel = $(this).attr("rel");
+    let rel = $(this).attr("rel");
     $(this).click(() => {
       if (rel == "center") {
         //noinspection JSUnresolvedFunction
@@ -113,11 +105,15 @@ function configSigmaElements() {
     });
   });
 
-  var hashAnchor = window.location.hash.substr(1);
-  if (0 < hashAnchor.length) {
+  let hashAnchor = window.location.hash.substr(1);
+  if (hashAnchor.length > 0) {
     switch (hashAnchor) {
       case "information":
-        $.fancybox.open($("#information"), cluster);
+        $.fancybox.open($("#information"), "Esta visualización muestra las donaciones recibidas declaradas por los" +
+          " partidos políticos para cada una de las listas políticas en las Elecciones Nacionales uruguayas del año" +
+          " 2014. El tamaño de los nodos es proporcional al dinero recibido.\n\nLos puntos rojos representan listas a" +
+          " la presidencia, los verdes candidatos a diputado y los amarillos a senador. Por otro lado, las empresas" +
+          " donantes están en azul y los particulares en color celeste.");
         break;
       default:
         $GP.search.exactMatch = $GP.search.search(hashAnchor);
@@ -147,7 +143,7 @@ function Search(searchElem) {
     }
   });
   this.state.click(() => {
-    var stateValue = this.input.val();
+    let stateValue = this.input.val();
     if (this.searching && stateValue == this.lastSearch) {
       this.close();
     } else {
@@ -168,8 +164,8 @@ function Search(searchElem) {
     this.input.val("");
   };
   this.search = text => {
-    var foundNodes = [];
-    var textRegex = new RegExp(this.exactMatch ? ("^" + text + "$").toLowerCase() : text.toLowerCase());
+    let foundNodes = [];
+    let textRegex = new RegExp(this.exactMatch ? ("^" + text + "$").toLowerCase() : text.toLowerCase());
     this.exactMatch = false;
     this.searching = true;
     this.lastSearch = text;
@@ -178,12 +174,12 @@ function Search(searchElem) {
       this.results.html("<i>El texto a buscar debe contener al menos 3 letras.</i>");
     } else {
       //noinspection JSUnresolvedFunction
-      for (var node of _sigma.graph.nodes()) {
+      for (let node of _sigma.graph.nodes()) {
         if (textRegex.test(node.label.toLowerCase())) {
           foundNodes.push(node);
         }
       }
-      var output = ["<b>Resultados encontrados: </b>"];
+      let output = ["<b>Resultados encontrados: </b>"];
       if (foundNodes.length == 0) {
         if (!showCluster(text)) {
           output.push("<i>No se encontró ningún nodo.</i>");
@@ -191,7 +187,7 @@ function Search(searchElem) {
       } else {
         nodeActive(foundNodes[0].id);
         if (foundNodes.length > 1) {
-          for (var foundNode of foundNodes) {
+          for (let foundNode of foundNodes) {
             output.push(`<a href="#${foundNode.label}" onclick="nodeActive('${foundNode.id}')">${foundNode.label}</a>`);
           }
         }
@@ -234,12 +230,12 @@ function nodeNormal() {
     $GP.info.delay(400).animate({width: 'hide'}, 350);
     $GP.cluster.hide();
     //noinspection JSUnresolvedFunction
-    for (var edge of _sigma.graph.edges()) {
+    for (let edge of _sigma.graph.edges()) {
       edge.attr.color = false;
       edge.hidden = false;
     }
     //noinspection JSUnresolvedFunction
-    for (var node of _sigma.graph.nodes()) {
+    for (let node of _sigma.graph.nodes()) {
       node.hidden = false;
       node.attr.color = false;
       node.attr.lineWidth = false;
@@ -258,15 +254,15 @@ function nodeNormal() {
 function nodeActive(nodeId) {
   _sigma.neighbors = {};
   _sigma.detail = true;
-  var node = _sigma.graph.nodesIndex[nodeId];
-  var outgoing = {};
-  var incoming = {};
+  let node = _sigma.graph.nodesIndex[nodeId];
+  let outgoing = {};
+  let incoming = {};
   //noinspection JSUnresolvedFunction
-  for (var edge of _sigma.graph.edges()) {
+  for (let edge of _sigma.graph.edges()) {
     edge.attr.lineWidth = false;
     edge.hidden = true;
 
-    var n = {
+    let n = {
       name: edge.label,
       color: edge.color
     };
@@ -283,17 +279,17 @@ function nodeActive(nodeId) {
     edge.attr.color = "rgba(0, 0, 0, 1)";
   }
   //noinspection JSUnresolvedFunction
-  for (var otherNode of _sigma.graph.nodes()) {
+  for (let otherNode of _sigma.graph.nodes()) {
     otherNode.hidden = true;
     otherNode.attr.lineWidth = false;
     otherNode.attr.color = otherNode.color;
   }
 
-  var createList = neighborsAndNodeIds => {
-    var neighborsHtmlList = [];
-    var neighbors = [];
-    for (var neighborId of neighborsAndNodeIds) {
-      var neighbor = _sigma.graph.nodesIndex[neighborId];
+  let createList = neighborsAndNodeIds => {
+    let neighborsHtmlList = [];
+    let neighbors = [];
+    for (let neighborId of neighborsAndNodeIds) {
+      let neighbor = _sigma.graph.nodesIndex[neighborId];
       neighbor.hidden = false;
       neighbor.attr.lineWidth = false;
       neighbor.attr.color = neighborsAndNodeIds[neighborId].color;
@@ -316,7 +312,7 @@ function nodeActive(nodeId) {
     return neighborsHtmlList;
   };
 
-  var neighborsHtml = neighborsHtml.concat(createList(_sigma.neighbors));
+  let neighborsHtml = neighborsHtml.concat(createList(_sigma.neighbors));
 
   node.hidden = false;
   node.attr.color = node.color;
@@ -329,8 +325,8 @@ function nodeActive(nodeId) {
   $GP.info_link.find("ul").html(neighborsHtml.join(""));
 
   if (node.attr.attributes) {
-    var attributesHtml = [];
-    for (var attr of node.attr.attributes) {
+    let attributesHtml = [];
+    for (let attr of node.attr.attributes) {
       if (attr != false) {
         attributesHtml.push('<span><strong>' + attr + ':</strong> ' + attr + '</span><br/>');
       }
@@ -351,24 +347,24 @@ function nodeActive(nodeId) {
 }
 
 function showCluster(clusterName) {
-  var cluster = _sigma.clusters[clusterName];
+  let cluster = _sigma.clusters[clusterName];
   if (cluster.length > 0) {
     _sigma.detail = true;
     cluster.sort();
     //noinspection JSUnresolvedFunction
-    for (var edge of _sigma.graph.edges()) {
+    for (let edge of _sigma.graph.edges()) {
       edge.hidden = false;
       edge.attr.lineWidth = false;
       edge.attr.color = false;
     }
     //noinspection JSUnresolvedFunction
-    for (var node of _sigma.graph.nodes()) {
+    for (let node of _sigma.graph.nodes()) {
       node.hidden = true;
     }
-    var clusterHiddenNodesHtmlList = [];
-    var clusterHiddenNodesIds = [];
-    for (var clusterNodeId of cluster) {
-      var clusterNode = _sigma.graph.nodesIndex[clusterNodeId];
+    let clusterHiddenNodesHtmlList = [];
+    let clusterHiddenNodesIds = [];
+    for (let clusterNodeId of cluster) {
+      let clusterNode = _sigma.graph.nodesIndex[clusterNodeId];
       if (clusterNode.hidden) {
         clusterHiddenNodesIds.push(clusterNodeId);
         clusterNode.hidden = false;

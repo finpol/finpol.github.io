@@ -5,12 +5,14 @@ import $ from "jquery";
 import sigma from "sigma-webpack"
 import _ from "underscore";
 
-// Using sigma-webpack version because GH dependency of sigma repo didn't work.
+// Using sigma-webpack version because GH dependency of sigma repo didn't work, and the last patch in master is needed
+// in order to work with node. Otherwise, the container is not found.
 
 fb($);
 
-let _sigma;
+var _sigma;
 let $GP;
+let $nodesById;
 
 $(document).ready(() => {
   $GP = {
@@ -43,9 +45,7 @@ function initSigma() {
       labelThreshold: 10,
       defaultLabelHoverColor: "#fff",
       fontStyle: "bold",
-      hoverFontStyle: "bold",
-      zoomMax: 20,
-      zoomMin: 0.75
+      hoverFontStyle: "bold"
     }
   });
 
@@ -56,6 +56,12 @@ function initSigma() {
   $.getJSON('data.json', data => {
     //noinspection JSUnresolvedFunction
     _sigma.graph.read(data);
+
+    //noinspection JSUnresolvedFunction
+    $nodesById = _.chain(_sigma.graph.nodes())
+      .groupBy(node => node.id)
+      .mapObject(nodes => nodes[0])
+      .value();
 
     //noinspection JSUnresolvedFunction
     _sigma.clusters = _.chain(_sigma.graph.nodes())
@@ -229,15 +235,15 @@ function nodeNormal() {
     $GP.cluster.hide();
     //noinspection JSUnresolvedFunction
     for (let edge of _sigma.graph.edges()) {
-      edge.attr.color = false;
+      edge.attributes.color = false;
       edge.hidden = false;
     }
     //noinspection JSUnresolvedFunction
     for (let node of _sigma.graph.nodes()) {
       node.hidden = false;
-      node.attr.color = false;
-      node.attr.lineWidth = false;
-      node.attr.size = false
+      node.attributes.color = false;
+      node.attributes.lineWidth = false;
+      node.attributes.size = false
     }
     //_sigma.draw(2, 2, 2, 2);
     //noinspection JSUnresolvedFunction
@@ -249,15 +255,14 @@ function nodeNormal() {
   }
 }
 
-function nodeActive(nodeId) {
+function nodeActive(node) {
   _sigma.neighbors = {};
   _sigma.detail = true;
-  let node = _sigma.graph.nodesIndex[nodeId];
   let outgoing = {};
   let incoming = {};
   //noinspection JSUnresolvedFunction
   for (let edge of _sigma.graph.edges()) {
-    edge.attr.lineWidth = false;
+    edge.attributes.lineWidth = false;
     edge.hidden = true;
 
     let n = {
@@ -265,33 +270,33 @@ function nodeActive(nodeId) {
       color: edge.color
     };
 
-    if (nodeId == edge.source) {
+    if (node.id == edge.source) {
       outgoing[edge.target] = n;
-    } else if (nodeId == edge.target) {
+    } else if (node.id == edge.target) {
       incoming[edge.source] = n;
     }
-    if (nodeId == edge.source || nodeId == edge.target) {
-      _sigma.neighbors[nodeId == edge.target ? edge.source : edge.target] = n;
+    if (node.id == edge.source || node.id == edge.target) {
+      _sigma.neighbors[node.id == edge.target ? edge.source : edge.target] = n;
     }
     edge.hidden = false;
-    edge.attr.color = "rgba(0, 0, 0, 1)";
+    edge.attributes.color = "rgba(0, 0, 0, 1)";
   }
   //noinspection JSUnresolvedFunction
   for (let otherNode of _sigma.graph.nodes()) {
     otherNode.hidden = true;
-    otherNode.attr.lineWidth = false;
-    otherNode.attr.color = otherNode.color;
+    otherNode.attributes.lineWidth = false;
+    otherNode.attributes.color = otherNode.color;
   }
 
   let createList = neighborsAndNodeIds => {
     let neighborsHtmlList = [];
     let neighbors = [];
     for (let neighborId of neighborsAndNodeIds) {
-      let neighbor = _sigma.graph.nodesIndex[neighborId];
+      let neighbor = $nodesById[neighborId];
       neighbor.hidden = false;
-      neighbor.attr.lineWidth = false;
-      neighbor.attr.color = neighborsAndNodeIds[neighborId].color;
-      if (neighborId != nodeId) {
+      neighbor.attributes.lineWidth = false;
+      neighbor.attributes.color = neighborsAndNodeIds[neighborId].color;
+      if (neighborId != node.id) {
         neighbors.push({
           id: neighborId,
           name: neighbor.label,
@@ -310,21 +315,24 @@ function nodeActive(nodeId) {
     return neighborsHtmlList;
   };
 
-  let neighborsHtml = neighborsHtml.concat(createList(_sigma.neighbors));
+  console.log(_sigma.neighbors);
+  console.log(createList(_sigma.neighbors));
+
+  let neighborsHtml = [].concat(createList(_sigma.neighbors));
 
   node.hidden = false;
-  node.attr.color = node.color;
-  node.attr.lineWidth = 6;
-  node.attr.strokeStyle = "#000000";
+  node.attributes.color = node.color;
+  node.attributes.lineWidth = 6;
+  node.attributes.strokeStyle = "#000000";
 
   //noinspection JSUnresolvedFunction
   _sigma.refresh();
 
   $GP.info_link.find("ul").html(neighborsHtml.join(""));
 
-  if (node.attr.attributes) {
+  if (node.attributes) {
     let attributesHtml = [];
-    for (let attr of node.attr.attributes) {
+    for (let attr of node.attributes) {
       if (attr != false) {
         attributesHtml.push('<span><strong>' + attr + ':</strong> ' + attr + '</span><br/>');
       }
@@ -340,7 +348,7 @@ function nodeActive(nodeId) {
   $GP.info.animate({width: 'show'}, 350);
   $GP.info_donnees.hide();
   $GP.info_donnees.show();
-  _sigma.active = nodeId;
+  _sigma.active = node.id;
   window.location.hash = node.label;
 }
 
@@ -352,8 +360,8 @@ function showCluster(clusterName) {
     //noinspection JSUnresolvedFunction
     for (let edge of _sigma.graph.edges()) {
       edge.hidden = false;
-      edge.attr.lineWidth = false;
-      edge.attr.color = false;
+      edge.attributes.lineWidth = false;
+      edge.attributes.color = false;
     }
     //noinspection JSUnresolvedFunction
     for (let node of _sigma.graph.nodes()) {
@@ -362,12 +370,12 @@ function showCluster(clusterName) {
     let clusterHiddenNodesHtmlList = [];
     let clusterHiddenNodesIds = [];
     for (let clusterNodeId of cluster) {
-      let clusterNode = _sigma.graph.nodesIndex[clusterNodeId];
+      let clusterNode = $nodesById[clusterNodeId];
       if (clusterNode.hidden) {
         clusterHiddenNodesIds.push(clusterNodeId);
         clusterNode.hidden = false;
-        clusterNode.attr.lineWidth = false;
-        clusterNode.attr.color = clusterNode.color;
+        clusterNode.attributes.lineWidth = false;
+        clusterNode.attributes.color = clusterNode.color;
         clusterHiddenNodesHtmlList.push(`<li class="membership"><!--suppress JSUnresolvedFunction --><a href="#
           ${clusterNode.label}" onclick="nodeActive('${clusterNode.id}')" onmouseout="_sigma.refresh()">
           ${clusterNode.label}</a></li>`);

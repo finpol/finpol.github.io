@@ -1,17 +1,18 @@
 'use strict';
 
-import sigma from "sigma";
-import $ from "jquery";
 import fb from "fancybox";
+import $ from "jquery";
+import sigma from "sigma-webpack"
+import _ from "underscore";
+
+// Using sigma-webpack version because GH dependency of sigma repo didn't work.
 
 fb($);
 
 let _sigma;
 let $GP;
 
-$(document).ready(() => setupGUI());
-
-function setupGUI() {
+$(document).ready(() => {
   $GP = {
     calculating: false,
   };
@@ -28,13 +29,14 @@ function setupGUI() {
   $GP.form = $("#mainpanel").find("form");
   $GP.search = new Search($GP.form.find("#search"));
   $GP.cluster = new Cluster($GP.form.find("#attributeselect"));
+
   initSigma();
-}
+});
 
 function initSigma() {
   //noinspection JSPotentiallyInvalidConstructorUsage
   _sigma = new sigma({
-    container: $('#sigma-canvas'),
+    container: 'sigma-canvas',
     settings: {
       defaultEdgeType: "curve",
       defaultHoverLabelBGColor: "#002147",
@@ -55,15 +57,11 @@ function initSigma() {
     //noinspection JSUnresolvedFunction
     _sigma.graph.read(data);
 
-    _sigma.clusters = {};
-
     //noinspection JSUnresolvedFunction
-    for (let node of _sigma.graph.nodes()) {
-      if (!(node.color in _sigma.clusters)) {
-        _sigma.clusters[node.color] = [];
-      }
-      _sigma.clusters[node.color].push(node.id);
-    }
+    _sigma.clusters = _.chain(_sigma.graph.nodes())
+      .groupBy(node => node.color)
+      .mapObject(nodes => _.map(nodes, node => node.id))
+      .value();
 
     //noinspection JSUnresolvedFunction
     _sigma.bind("clickNode", event => nodeActive(event.data.node));

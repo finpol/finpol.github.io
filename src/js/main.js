@@ -10,28 +10,26 @@ import _ from "underscore";
 
 fb($);
 
-var _sigma;
-let $GP;
-let _nodesById;
-let _neighbors;
+let _sigma;
+let elements;
 
 $(document).ready(() => {
-  $GP = {
+  elements = {
     calculating: false,
   };
-  $GP.info = $("#attributepane");
-  $GP.info_donnees = $GP.info.find(".nodeattributes");
-  $GP.info_name = $GP.info.find(".name");
-  $GP.info_link = $GP.info.find(".link");
-  $GP.info_data = $GP.info.find(".data");
-  $GP.info_close = $GP.info.find(".returntext");
-  $GP.info_close2 = $GP.info.find(".close");
-  $GP.info_p = $GP.info.find(".p");
-  $GP.info_close.click(showNormalMode);
-  $GP.info_close2.click(showNormalMode);
-  $GP.form = $("#mainpanel").find("form");
-  $GP.search = new Search($GP.form.find("#search"));
-  $GP.cluster = new Cluster($GP.form.find("#attributeselect"));
+  elements.info = $("#attributepane");
+  elements.info_donnees = elements.info.find(".nodeattributes");
+  elements.info_name = elements.info.find(".name");
+  elements.info_link = elements.info.find(".link");
+  elements.info_data = elements.info.find(".data");
+  elements.info_close = elements.info.find(".returntext");
+  elements.info_close2 = elements.info.find(".close");
+  elements.info_p = elements.info.find(".p");
+  elements.info_close.click(showNormalMode);
+  elements.info_close2.click(showNormalMode);
+  elements.form = $("#mainpanel").find("form");
+  elements.search = new Search(elements.form.find("#search"));
+  elements.cluster = new Cluster(elements.form.find("#attributeselect"));
 
   initSigma();
 });
@@ -51,7 +49,6 @@ function initSigma() {
   });
 
   _sigma.active = false;
-  _sigma.neighbors = {};
   _sigma.detail = false;
 
   $.getJSON('data.json', data => {
@@ -59,7 +56,7 @@ function initSigma() {
     _sigma.graph.read(data);
 
     //noinspection JSUnresolvedFunction
-    _nodesById = _.chain(_sigma.graph.nodes())
+    _sigma.nodesById = _.chain(_sigma.graph.nodes())
       .groupBy(node => node.id)
       .mapObject(nodes => nodes[0])
       .value();
@@ -87,16 +84,14 @@ function loadNeighbors() {
   let incidents = getIncidents();
 
   //noinspection JSUnresolvedFunction
-  _neighbors = _.mapObject(adjacencies, (nodes, id) => nodes.concat(incidents[id]));
-
-  console.log(_neighbors);
+  _sigma.neighbors = _.mapObject(adjacencies, (nodes, id) => nodes.concat(incidents[id]));
 }
 
 function getAdjacencies() {
   //noinspection JSUnresolvedFunction
   let adjacencies = _.chain(_sigma.graph.edges())
     .groupBy(edge => edge.source)
-    .mapObject(edges => _.map(edges, edge => _nodesById[edge.target]))
+    .mapObject(edges => _.map(edges, edge => _sigma.nodesById[edge.target]))
     .value();
 
   //noinspection JSUnresolvedFunction
@@ -112,7 +107,7 @@ function getIncidents() {
   //noinspection JSUnresolvedFunction
   let incidents = _.chain(_sigma.graph.edges())
     .groupBy(edge => edge.target)
-    .mapObject(edges => _.map(edges, edge => _nodesById[edge.source]))
+    .mapObject(edges => _.map(edges, edge => _sigma.nodesById[edge.source]))
     .value();
 
   //noinspection JSUnresolvedFunction
@@ -132,7 +127,7 @@ function configSigmaElements() {
       border:1px solid #fff;background:${clusterId};display:inline-block"></div>
       Group ${clusterNumber++} (${clusterId.length} members)</a></div>`);
   }
-  $GP.cluster.content(clustersHtml.join(""));
+  elements.cluster.content(clustersHtml.join(""));
 
   //noinspection JSUnresolvedFunction
   $("a.fb").fancybox({
@@ -165,8 +160,8 @@ function configSigmaElements() {
           " donantes están en azul y los particulares en color celeste.");
         break;
       default:
-        $GP.search.exactMatch = $GP.search.search(hashAnchor);
-        $GP.search.clean();
+        elements.search.exactMatch = elements.search.search(hashAnchor);
+        elements.search.clean();
     }
   }
 }
@@ -253,7 +248,7 @@ function Cluster(clusterElem) {
   this.list = this.cluster.find(".list");
   this.list.empty();
   this.select = this.cluster.find(".select");
-  this.select.click(() => $GP.cluster.toggle());
+  this.select.click(() => elements.cluster.toggle());
   this.toggle = () => this.display ? this.hide() : this.show();
   this.content = html => {
     this.list.html(html);
@@ -272,12 +267,12 @@ function Cluster(clusterElem) {
 }
 
 function showNormalMode() {
-  if (!$GP.calculating && _sigma.detail) {
-    $GP.calculating = true;
+  if (!elements.calculating && _sigma.detail) {
+    elements.calculating = true;
     _sigma.detail = true;
     //noinspection JSUnresolvedFunction
-    $GP.info.delay(400).animate({width: 'hide'}, 350);
-    $GP.cluster.hide();
+    elements.info.delay(400).animate({width: 'hide'}, 350);
+    elements.cluster.hide();
     //noinspection JSUnresolvedFunction
     for (let edge of _sigma.graph.edges()) {
       edge.attributes.color = false;
@@ -293,9 +288,8 @@ function showNormalMode() {
     //_sigma.draw(2, 2, 2, 2);
     //noinspection JSUnresolvedFunction
     _sigma.refresh();
-    _sigma.neighbors = {};
     _sigma.active = false;
-    $GP.calculating = false;
+    elements.calculating = false;
     window.location.hash = "";
   }
 }
@@ -309,69 +303,58 @@ function showActiveMode(node) {
   }
 
   //noinspection JSUnresolvedFunction
-  for (let node2 of _sigma.graph.nodes()) {
-    node2.hidden = true;
-    node2.attributes.lineWidth = false;
-    node2.attributes.color = node2.color;
+  for (let node1 of _sigma.graph.nodes()) {
+    node1.hidden = true;
+    node1.attributes.lineWidth = false;
+    node1.attributes.color = node1.color;
   }
-
-  let createList = neighborsAndNodeMap => {
-    let neighborsHtmlList = [];
-    let neighbors = [];
-    for (let neighborId of neighborsAndNodeMap) {
-      let neighbor = _nodesById[neighborId];
-      neighbor.hidden = false;
-      neighbor.attributes.lineWidth = false;
-      neighbor.attributes.color = neighborsAndNodeMap[neighborId].color;
-      if (neighborId != node.id) {
-        neighbors.push({
-          id: neighborId,
-          label: neighbor.label,
-          group: neighborsAndNodeMap[neighborId].label,
-          color: neighborsAndNodeMap[neighborId].color
-        });
-      }
-    }
-    neighbors.sort((node1, node2) => node1.group.toLowerCase().localeCompare(node2.group.toLowerCase())
-        || node1.label.toLowerCase().localeCompare(node2.label.toLowerCase()));
-    for (neighbor in neighbors) {
-      neighborsHtmlList.push(`<li class="membership"><!--suppress JSUnresolvedFunction -->
-        <a href="#${neighbor.label}" onclick="showActiveMode('${neighbor.id}')"
-        onmouseout="_sigma.refresh()">${neighbor.label}</a></li>`);
-    }
-    return neighborsHtmlList;
-  };
-
-  let neighborsHtml = [].concat(createList(_sigma.neighbors));
 
   node.hidden = false;
   node.attributes.color = node.color;
   node.attributes.lineWidth = 6;
   node.attributes.strokeStyle = "#000000";
 
+  for (let neighbor of _sigma.neighbors[node.id]) {
+    neighbor.hidden = false;
+    neighbor.attributes.lineWidth = false;
+  }
+
   //noinspection JSUnresolvedFunction
   _sigma.refresh();
 
-  $GP.info_link.find("ul").html(neighborsHtml.join(""));
+  //noinspection JSUnresolvedFunction
+  elements.info_link.find("ul").html(
+    _.chain(_sigma.neighbors[node.id])
+      .sortBy(node => node.label)
+      .map(node =>
+        `<li class="membership"><!--suppress JSUnresolvedFunction -->
+          <a href="#${node.label}" onclick="showActiveMode('${node.id}')" onmouseout="refresh()">${node.label}</a>
+        </li>`
+      )
+      .reduce((accumulator, html) => `${accumulator}${html}`)
+      .value()
+  );
 
-  if (node.attributes) {
-    let attributesHtml = [];
-    for (let attr of node.attributes) {
-      if (attr != false) {
-        attributesHtml.push('<span><strong>' + attr + ':</strong> ' + attr + '</span><br/>');
-      }
-    }
+  elements.info_name.html(
+    `<div><!--suppress JSUnresolvedFunction -->
+      <span onmouseout="refresh()">${node.label}</span>
+    </div>`
+  );
 
-    $GP.info_name.html('<div><!--suppress JSUnresolvedFunction --><span onmouseout="_sigma.refresh()">'
-      + node.label + "</span></div>");
+  //noinspection JSUnresolvedFunction
+  elements.info_data.html(
+    _.chain(node.attributes)
+      .reject(attr => attr == false)
+      .map(attr => `<span><strong>${attr}:</strong>${attr}</span>`)
+      .reduce((accumulator, html) => `${accumulator}<br />${html}`)
+      .value()
+  );
 
-    $GP.info_data.html(attributesHtml.join("<br/>"));
-  }
-  $GP.info_data.show();
-  $GP.info_p.html("Conexiones:");
-  $GP.info.animate({width: 'show'}, 350);
-  $GP.info_donnees.hide();
-  $GP.info_donnees.show();
+  elements.info_data.show();
+  elements.info_p.html("Conexiones:");
+  elements.info.animate({width: 'show'}, 350);
+  elements.info_donnees.hide();
+  elements.info_donnees.show();
   _sigma.active = node.id;
   window.location.hash = node.label;
 }
@@ -394,7 +377,7 @@ function showCluster(clusterName) {
     let clusterHiddenNodesHtmlList = [];
     let clusterHiddenNodesIds = [];
     for (let clusterNodeId of cluster) {
-      let clusterNode = _nodesById[clusterNodeId];
+      let clusterNode = _sigma.nodesById[clusterNodeId];
       if (clusterNode.hidden) {
         clusterHiddenNodesIds.push(clusterNodeId);
         clusterNode.hidden = false;
@@ -408,14 +391,19 @@ function showCluster(clusterName) {
     _sigma.clusters[clusterName] = clusterHiddenNodesIds;
     //noinspection JSUnresolvedFunction
     _sigma.refresh();
-    $GP.info_name.html("<b>" + clusterName + "</b>");
-    $GP.info_data.hide();
-    $GP.info_p.html("Miembros del grupo:");
-    $GP.info_link.find("ul").html(clusterHiddenNodesHtmlList.join(""));
-    $GP.info.animate({width: 'show'}, 350);
-    $GP.search.clean();
-    $GP.cluster.hide();
+    elements.info_name.html("<b>" + clusterName + "</b>");
+    elements.info_data.hide();
+    elements.info_p.html("Miembros del grupo:");
+    elements.info_link.find("ul").html(clusterHiddenNodesHtmlList.join(""));
+    elements.info.animate({width: 'show'}, 350);
+    elements.search.clean();
+    elements.cluster.hide();
     return true;
   }
   return false;
+}
+
+function refresh() {
+  //noinspection JSUnresolvedFunction
+  _sigma.refresh();
 }

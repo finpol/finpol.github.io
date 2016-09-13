@@ -118,14 +118,27 @@ function getIncidents() {
 }
 
 function configSigmaElements() {
-  let clustersHtml = [];
-  let clusterNumber = 1;
-  for (let clusterId of Object.keys(_sigma.clusters)) {
-    clustersHtml.push(`<div style="line-height:12px"><a href="#${clusterId}"><div style="width:40px;height:12px;
-      border:1px solid #fff;background:${clusterId};display:inline-block"></div>
-      Group ${clusterNumber++} (${clusterId.length} members)</a></div>`);
-  }
-  elements.cluster.content(clustersHtml.join(""));
+  let clustersKeys = Object.keys(_sigma.clusters);
+
+  //noinspection JSUnresolvedFunction
+  elements.cluster.content(
+    _.chain(
+        _.zip(
+          _.range(1, clustersKeys.length + 1),
+          clustersKeys
+        )
+      )
+      .map(pair => {
+          let clusterNumber = pair[0];
+          let clusterId = pair[1];
+          return `<div style="line-height:12px"><a href="#${clusterId}"><div style="width:40px;height:12px;
+            border:1px solid #fff;background:${clusterId};display:inline-block"></div>
+            Grupo ${clusterNumber} (${_sigma.clusters[clusterId].length} miembros)</a></div>`;
+        }
+      )
+      .reduce((accumulator, html) => `${accumulator}${html}`)
+      .value()
+  );
 
   //noinspection JSUnresolvedFunction
   $("a.fb").fancybox({
@@ -140,7 +153,7 @@ function configSigmaElements() {
     $element.click(() => {
       if (rel == "center") {
         //noinspection JSUnresolvedFunction
-        _sigma.cameras[0].goTo({ angle: 0, ratio: 1, x: 0, y: 0 });
+        _sigma.cameras[0].goTo({ ratio: 1, x: 0, y: 0 });
       } else {
         //noinspection JSUnresolvedFunction
         sigma.utils.zoomTo(_sigma.cameras[0], 0, 0, rel == "in" ? 0.5 : 1.5, {
@@ -154,11 +167,11 @@ function configSigmaElements() {
   if (hashAnchor.length > 0) {
     switch (hashAnchor) {
       case "information":
-        $.fancybox.open($("#information"), "Esta visualización muestra las donaciones recibidas declaradas por los" +
-          " partidos políticos para cada una de las listas políticas en las Elecciones Nacionales uruguayas del año" +
-          " 2014. El tamaño de los nodos es proporcional al dinero recibido.\n\nLos puntos rojos representan listas a" +
-          " la presidencia, los verdes candidatos a diputado y los amarillos a senador. Por otro lado, las empresas" +
-          " donantes están en azul y los particulares en color celeste.");
+        $.fancybox.open($("#information"), "Esta visualización muestra las donaciones recibidas declaradas por los"
+          + " partidos políticos para cada una de las listas políticas en las Elecciones Nacionales uruguayas del año"
+          + " 2014. El tamaño de los nodos es proporcional al dinero recibido.\n\nLos puntos rojos representan listas a"
+          + " la presidencia, los verdes candidatos a diputado y los amarillos a senador. Por otro lado, las empresas"
+          + " donantes están en azul y los particulares en color celeste.");
         break;
       default:
         elements.search.exactMatch = elements.search.search(hashAnchor);

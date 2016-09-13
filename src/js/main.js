@@ -2,7 +2,7 @@
 
 import fb from "fancybox";
 import $ from "jquery";
-import sigma from "sigma-webpack"
+import sigma from "sigma-webpack";
 import _ from "underscore";
 
 // Using sigma-webpack version because GH dependency of sigma repo didn't work, and the last patch in master is needed
@@ -35,25 +35,26 @@ $(document).ready(() => {
 });
 
 function initSigma() {
-  //noinspection JSPotentiallyInvalidConstructorUsage
-  _sigma = new sigma({
-    container: 'sigma-canvas',
-    settings: {
-      defaultEdgeType: "curve",
-      defaultHoverLabelBGColor: "#002147",
-      labelThreshold: 10,
-      defaultLabelHoverColor: "#fff",
-      fontStyle: "bold",
-      hoverFontStyle: "bold"
-    }
-  });
-
-  _sigma.active = false;
-  _sigma.detail = false;
-
   $.getJSON('data.json', data => {
-    //noinspection JSUnresolvedFunction
-    _sigma.graph.read(data);
+    //noinspection JSPotentiallyInvalidConstructorUsage
+    _sigma = new sigma({
+      container: 'sigma-canvas',
+      graph: data,
+      settings: {
+        defaultEdgeHoverColor: '#000',
+        defaultHoverLabelBGColor: "#002147",
+        defaultLabelHoverColor: "#fff",
+        doubleClickZoomDuration: 300,
+        edgeHoverExtremities: true,
+        enableEdgeHovering: true,
+        fontStyle: "bold",
+        hoverFontStyle: "bold",
+        labelThreshold: 10
+      }
+    });
+
+    _sigma.active = false;
+    _sigma.detail = false;
 
     //noinspection JSUnresolvedFunction
     _sigma.nodesById = _.chain(_sigma.graph.nodes())
@@ -73,9 +74,6 @@ function initSigma() {
     _sigma.bind("clickNode", event => showActiveMode(event.data.node));
 
     configSigmaElements();
-
-    //noinspection JSUnresolvedFunction
-    _sigma.refresh();
   });
 }
 
@@ -136,15 +134,18 @@ function configSigmaElements() {
     maxHeight: 600,
   });
 
-  $("#zoom").find("div.z").each(() => {
-    let rel = $(this).attr("rel");
-    $(this).click(() => {
+  $("#zoom").find("div.z").each((_, element) => {
+    let $element = $(element);
+    let rel = $element.attr("rel");
+    $element.click(() => {
       if (rel == "center") {
         //noinspection JSUnresolvedFunction
-        _sigma.cameras.goTo(0, 0, 1, 0);
+        _sigma.cameras[0].goTo({ angle: 0, ratio: 1, x: 0, y: 0 });
       } else {
         //noinspection JSUnresolvedFunction
-        _sigma.utils.zoomTo(0, 0, "in" == rel ? 1.5 : 0.5, 0);
+        sigma.utils.zoomTo(_sigma.cameras[0], 0, 0, rel == "in" ? 0.5 : 1.5, {
+          duration: _sigma.settings('doubleClickZoomDuration'),
+        });
       }
     });
   });
@@ -229,7 +230,7 @@ function Search(searchElem) {
           output.push("<i>No se encontró ningún nodo.</i>");
         }
       } else {
-        showActiveMode(foundNodes[0].id);
+        showActiveMode(foundNodes[0]);
         if (foundNodes.length > 1) {
           for (let foundNode of foundNodes) {
             output.push(`<a href="#${foundNode.label}" onclick="showActiveMode('${foundNode.id}')">${foundNode.label}</a>`);

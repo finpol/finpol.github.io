@@ -361,7 +361,7 @@ font-weight:bold;
 }
 
 #mainpanel h2 {
-	font-size: 14px;
+	font-size: 16px;
 }
 
 #mainpanel dt {
@@ -454,19 +454,18 @@ font-weight:bold;
 	border:1px solid #ccc;
 	float:left;
 	margin-right:4px;
-  background: rgba(255, 255, 255, 0.7) no-repeat;
 }
 
 #zoom .z[rel=center] {
-  background: url('../images/zoom_reset.png') center;
+  background: url('../images/zoom_reset.png') center no-repeat;
 }
 
 #zoom .z[rel=in] {
-  background: url('../images/zoom_in.png') center;
+  background: url('../images/zoom_in.png') center no-repeat;
 }
 
 #zoom .z[rel=out] {
-  background: url('../images/zoom_out.png') center;
+  background: url('../images/zoom_out.png') center no-repeat;
 }
 
 .line {

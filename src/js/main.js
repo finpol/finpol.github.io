@@ -10,8 +10,8 @@ import _ from "underscore";
 
 fb($);
 
-let sigma;
 let elements;
+let sigma;
 
 $(document).ready(() => {
   setupElements();
@@ -40,18 +40,32 @@ function setupElements() {
 
 function setupSigma() {
   $.getJSON('data.json', data => {
+    //noinspection JSUnresolvedFunction
+    for (let edge of data['edges']) {
+      edge['color'] = '#ccc'; // TODO: should remove this
+    }
+
     sigma = new Sigma({
-      container: 'sigma-canvas',
       graph: data,
+      renderers: [{
+        container: 'sigma-canvas',
+        type: 'canvas'
+      }],
       settings: {
+        defaultEdgeColor: '#ccc',
         defaultEdgeHoverColor: '#000',
+        //defaultEdgeType: 'curve', // TODO: should add this
         defaultHoverLabelBGColor: "#002147",
         defaultLabelHoverColor: "#fff",
         doubleClickZoomDuration: 300,
+        edgeColor: 'default',
+        edgeHoverColor: 'default',
         edgeHoverExtremities: true,
         enableEdgeHovering: true,
         fontStyle: "bold",
         hoverFontStyle: "bold",
+        minEdgeSize: 0.5,
+        maxEdgeSize: 8,
       }
     });
 
@@ -295,7 +309,7 @@ function showNormalMode() {
     elements.cluster.hide();
     //noinspection JSUnresolvedFunction
     for (let edge of sigma.graph.edges()) {
-      edge.attributes.color = false;
+      //edge.attributes.color = false;
       edge.hidden = false;
     }
     //noinspection JSUnresolvedFunction
@@ -318,7 +332,7 @@ function showActiveMode(node) {
   //noinspection JSUnresolvedFunction
   for (let edge of sigma.graph.edges()) {
     edge.attributes.lineWidth = false;
-    edge.attributes.color = "#000";
+    //edge.attributes.color = "#000";
   }
 
   //noinspection JSUnresolvedFunction
@@ -389,7 +403,7 @@ function showCluster(clusterName) {
     for (let edge of sigma.graph.edges()) {
       edge.hidden = false;
       edge.attributes.lineWidth = false;
-      edge.attributes.color = false;
+      //edge.attributes.color = false;
     }
     //noinspection JSUnresolvedFunction
     for (let node of sigma.graph.nodes()) {

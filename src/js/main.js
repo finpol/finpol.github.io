@@ -2,7 +2,7 @@
 
 import fb from "fancybox";
 import $ from "jquery";
-import sigma from "sigma-webpack";
+import Sigma from "sigma-webpack";
 import _ from "underscore";
 
 // Using sigma-webpack version because GH dependency of sigma repo didn't work, and the last patch in master is needed
@@ -10,17 +10,23 @@ import _ from "underscore";
 
 fb($);
 
-let _sigma;
+let sigma;
 let elements;
 
 $(document).ready(() => {
+  setupElements();
+  setupSigma();
+});
+
+function setupElements() {
   elements = {
     calculating: false,
+    info: $("#attributepane"),
   };
-  elements.info = $("#attributepane");
   elements.info_donnees = elements.info.find(".nodeattributes");
   elements.info_name = elements.info.find(".name");
   elements.info_link = elements.info.find(".link");
+  elements.info_link_ul = elements.info_link.find("ul");
   elements.info_data = elements.info.find(".data");
   elements.info_close = elements.info.find(".returntext");
   elements.info_close2 = elements.info.find(".close");
@@ -30,14 +36,11 @@ $(document).ready(() => {
   elements.form = $("#mainpanel").find("form");
   elements.search = new Search(elements.form.find("#search"));
   elements.cluster = new Cluster(elements.form.find("#attributeselect"));
+}
 
-  initSigma();
-});
-
-function initSigma() {
+function setupSigma() {
   $.getJSON('data.json', data => {
-    //noinspection JSPotentiallyInvalidConstructorUsage
-    _sigma = new sigma({
+    sigma = new Sigma({
       container: 'sigma-canvas',
       graph: data,
       settings: {
@@ -49,15 +52,14 @@ function initSigma() {
         enableEdgeHovering: true,
         fontStyle: "bold",
         hoverFontStyle: "bold",
-        labelThreshold: 10
       }
     });
 
-    _sigma.active = false;
-    _sigma.detail = false;
+    sigma.active = false;
+    sigma.detail = false;
 
     //noinspection JSUnresolvedFunction
-    _sigma.nodesById = _.chain(_sigma.graph.nodes())
+    sigma.nodesById = _.chain(sigma.graph.nodes())
       .groupBy(node => node.id)
       .mapObject(nodes => nodes[0])
       .value();
@@ -65,15 +67,15 @@ function initSigma() {
     loadNeighbors();
 
     //noinspection JSUnresolvedFunction
-    _sigma.clusters = _.chain(_sigma.graph.nodes())
+    sigma.clusters = _.chain(sigma.graph.nodes())
       .groupBy(node => node.color)
       .mapObject(nodes => _.map(nodes, node => node.id))
       .value();
 
     //noinspection JSUnresolvedFunction
-    _sigma.bind("clickNode", event => showActiveMode(event.data.node));
+    sigma.bind("clickNode", event => showActiveMode(event.data.node));
 
-    configSigmaElements();
+    setupSigmaElements();
   });
 }
 
@@ -82,18 +84,18 @@ function loadNeighbors() {
   let incidents = getIncidents();
 
   //noinspection JSUnresolvedFunction
-  _sigma.neighbors = _.mapObject(adjacencies, (nodes, id) => nodes.concat(incidents[id]));
+  sigma.neighbors = _.mapObject(adjacencies, (nodes, id) => nodes.concat(incidents[id]));
 }
 
 function getAdjacencies() {
   //noinspection JSUnresolvedFunction
-  let adjacencies = _.chain(_sigma.graph.edges())
+  let adjacencies = _.chain(sigma.graph.edges())
     .groupBy(edge => edge.source)
-    .mapObject(edges => _.map(edges, edge => _sigma.nodesById[edge.target]))
+    .mapObject(edges => _.map(edges, edge => sigma.nodesById[edge.target]))
     .value();
 
   //noinspection JSUnresolvedFunction
-  _.chain(_sigma.graph.nodes())
+  _.chain(sigma.graph.nodes())
     .map(node => node.id)
     .reject(id => id in adjacencies)
     .each(id => adjacencies[id] = []);
@@ -103,13 +105,13 @@ function getAdjacencies() {
 
 function getIncidents() {
   //noinspection JSUnresolvedFunction
-  let incidents = _.chain(_sigma.graph.edges())
+  let incidents = _.chain(sigma.graph.edges())
     .groupBy(edge => edge.target)
-    .mapObject(edges => _.map(edges, edge => _sigma.nodesById[edge.source]))
+    .mapObject(edges => _.map(edges, edge => sigma.nodesById[edge.source]))
     .value();
 
   //noinspection JSUnresolvedFunction
-  _.chain(_sigma.graph.nodes())
+  _.chain(sigma.graph.nodes())
     .map(node => node.id)
     .reject(id => id in incidents)
     .each(id => incidents[id] = []);
@@ -117,8 +119,8 @@ function getIncidents() {
   return incidents;
 }
 
-function configSigmaElements() {
-  let clustersKeys = Object.keys(_sigma.clusters);
+function setupSigmaElements() {
+  let clustersKeys = Object.keys(sigma.clusters);
 
   //noinspection JSUnresolvedFunction
   elements.cluster.content(
@@ -131,9 +133,13 @@ function configSigmaElements() {
       .map(pair => {
           let clusterNumber = pair[0];
           let clusterId = pair[1];
-          return `<div style="line-height:12px"><a href="#${clusterId}"><div style="width:40px;height:12px;
-            border:1px solid #fff;background:${clusterId};display:inline-block"></div>
-            Grupo ${clusterNumber} (${_sigma.clusters[clusterId].length} miembros)</a></div>`;
+          return `<div class="item-group">
+                    <a href="#${clusterId}">
+                      <div class="item-group-color" style="background: ${clusterId}">
+                      </div>
+                      Grupo ${clusterNumber} (${sigma.clusters[clusterId].length} miembros)
+                    </a>
+                  </div>`;
         }
       )
       .reduce((accumulator, html) => `${accumulator}${html}`)
@@ -147,17 +153,17 @@ function configSigmaElements() {
     maxHeight: 600,
   });
 
-  $("#zoom").find("div.z").each((_, element) => {
+  $("#zoom").find("div.z").each((i, element) => {
     let $element = $(element);
     let rel = $element.attr("rel");
     $element.click(() => {
       if (rel == "center") {
         //noinspection JSUnresolvedFunction
-        _sigma.cameras[0].goTo({ ratio: 1, x: 0, y: 0 });
+        sigma.cameras[0].goTo({ ratio: 1, x: 0, y: 0 });
       } else {
         //noinspection JSUnresolvedFunction
-        sigma.utils.zoomTo(_sigma.cameras[0], 0, 0, rel == "in" ? 0.5 : 1.5, {
-          duration: _sigma.settings('doubleClickZoomDuration'),
+        Sigma.utils.zoomTo(sigma.cameras[0], 0, 0, rel == "in" ? 0.5 : 1.5, {
+          duration: sigma.settings('doubleClickZoomDuration'),
         });
       }
     });
@@ -232,25 +238,25 @@ function Search(searchElem) {
       this.results.html("<i>El texto a buscar debe contener al menos 3 letras.</i>");
     } else {
       //noinspection JSUnresolvedFunction
-      for (let node of _sigma.graph.nodes()) {
-        if (textRegex.test(node.label.toLowerCase())) {
-          foundNodes.push(node);
-        }
-      }
-      let output = ["<b>Resultados encontrados: </b>"];
+      foundNodes = _.chain(sigma.graph.nodes())
+        .filter(node => textRegex.test(node.label.toLowerCase()))
+        .value();
+
+      this.results.html("<b>Resultados encontrados: </b>");
       if (foundNodes.length == 0) {
         if (!showCluster(text)) {
-          output.push("<i>No se encontró ningún nodo.</i>");
+          $("<i>No se encontró ningún resultado.</i>")
+            .appendTo(this.results);
         }
-      } else {
+      } else if (foundNodes.length == 1) {
         showActiveMode(foundNodes[0]);
-        if (foundNodes.length > 1) {
-          for (let foundNode of foundNodes) {
-            output.push(`<a href="#${foundNode.label}" onclick="showActiveMode('${foundNode.id}')">${foundNode.label}</a>`);
-          }
+      } else {
+        for (let foundNode of foundNodes) {
+          $(`<a href="#${foundNode.label}">${foundNode.label}</a>`)
+            .click(() => showActiveMode(foundNode))
+            .appendTo(this.results);
         }
       }
-      this.results.html(output.join(""));
     }
     foundNodes.length == 1 ? this.results.hide() : this.results.show();
   }
@@ -266,7 +272,7 @@ function Cluster(clusterElem) {
   this.toggle = () => this.display ? this.hide() : this.show();
   this.content = html => {
     this.list.html(html);
-    this.list.find("a").click(() => showCluster($(this).attr("href").substr(1)));
+    this.list.find("a").click(() => showCluster($(event.currentTarget).attr("href").substr(1)));
   };
   this.hide = () => {
     this.display = false;
@@ -281,43 +287,42 @@ function Cluster(clusterElem) {
 }
 
 function showNormalMode() {
-  if (!elements.calculating && _sigma.detail) {
+  if (!elements.calculating && sigma.detail) {
     elements.calculating = true;
-    _sigma.detail = true;
+    sigma.detail = true;
     //noinspection JSUnresolvedFunction
     elements.info.delay(400).animate({width: 'hide'}, 350);
     elements.cluster.hide();
     //noinspection JSUnresolvedFunction
-    for (let edge of _sigma.graph.edges()) {
+    for (let edge of sigma.graph.edges()) {
       edge.attributes.color = false;
       edge.hidden = false;
     }
     //noinspection JSUnresolvedFunction
-    for (let node of _sigma.graph.nodes()) {
+    for (let node of sigma.graph.nodes()) {
       node.hidden = false;
       node.attributes.color = false;
       node.attributes.lineWidth = false;
       node.attributes.size = false
     }
-    //_sigma.draw(2, 2, 2, 2);
     //noinspection JSUnresolvedFunction
-    _sigma.refresh();
-    _sigma.active = false;
+    sigma.refresh();
+    sigma.active = false;
     elements.calculating = false;
     window.location.hash = "";
   }
 }
 
 function showActiveMode(node) {
-  _sigma.detail = true;
+  sigma.detail = true;
   //noinspection JSUnresolvedFunction
-  for (let edge of _sigma.graph.edges()) {
+  for (let edge of sigma.graph.edges()) {
     edge.attributes.lineWidth = false;
-    edge.attributes.color = "rgb(0, 0, 0)";
+    edge.attributes.color = "#000";
   }
 
   //noinspection JSUnresolvedFunction
-  for (let node1 of _sigma.graph.nodes()) {
+  for (let node1 of sigma.graph.nodes()) {
     node1.hidden = true;
     node1.attributes.lineWidth = false;
     node1.attributes.color = node1.color;
@@ -326,32 +331,34 @@ function showActiveMode(node) {
   node.hidden = false;
   node.attributes.color = node.color;
   node.attributes.lineWidth = 6;
-  node.attributes.strokeStyle = "#000000";
+  node.attributes.strokeStyle = "#000";
 
-  for (let neighbor of _sigma.neighbors[node.id]) {
+  for (let neighbor of sigma.neighbors[node.id]) {
     neighbor.hidden = false;
     neighbor.attributes.lineWidth = false;
   }
 
   //noinspection JSUnresolvedFunction
-  _sigma.refresh();
+  sigma.refresh();
+
+  elements.info_link_ul.empty();
 
   //noinspection JSUnresolvedFunction
-  elements.info_link.find("ul").html(
-    _.chain(_sigma.neighbors[node.id])
-      .sortBy(node => node.label)
-      .map(node =>
-        `<li class="membership"><!--suppress JSUnresolvedFunction -->
-          <a href="#${node.label}" onclick="showActiveMode('${node.id}')" onmouseout="refresh()">${node.label}</a>
+  _.chain(sigma.neighbors[node.id])
+    .sortBy(node => node.label)
+    .each(node =>
+      $(
+        `<li class="membership">
+          <a href="#${node.label}">${node.label}</a>
         </li>`
       )
-      .reduce((accumulator, html) => `${accumulator}${html}`)
-      .value()
-  );
+        .click(() => showActiveMode(node))
+        .appendTo(elements.info_link_ul)
+    );
 
   elements.info_name.html(
-    `<div><!--suppress JSUnresolvedFunction -->
-      <span onmouseout="refresh()">${node.label}</span>
+    `<div>
+      <span>${node.label}</span>
     </div>`
   );
 
@@ -366,58 +373,58 @@ function showActiveMode(node) {
 
   elements.info_data.show();
   elements.info_p.html("Conexiones:");
-  elements.info.animate({width: 'show'}, 350);
+  elements.info.animate({ width: 'show' }, 350);
   elements.info_donnees.hide();
   elements.info_donnees.show();
-  _sigma.active = node.id;
+  sigma.active = node.id;
   window.location.hash = node.label;
 }
 
 function showCluster(clusterName) {
-  let cluster = _sigma.clusters[clusterName];
+  let cluster = sigma.clusters[clusterName];
   if (cluster.length > 0) {
-    _sigma.detail = true;
+    sigma.detail = true;
     cluster.sort();
     //noinspection JSUnresolvedFunction
-    for (let edge of _sigma.graph.edges()) {
+    for (let edge of sigma.graph.edges()) {
       edge.hidden = false;
       edge.attributes.lineWidth = false;
       edge.attributes.color = false;
     }
     //noinspection JSUnresolvedFunction
-    for (let node of _sigma.graph.nodes()) {
+    for (let node of sigma.graph.nodes()) {
       node.hidden = true;
     }
-    let clusterHiddenNodesHtmlList = [];
+
+    elements.info_link_ul.empty();
+
     let clusterHiddenNodesIds = [];
     for (let clusterNodeId of cluster) {
-      let clusterNode = _sigma.nodesById[clusterNodeId];
+      let clusterNode = sigma.nodesById[clusterNodeId];
       if (clusterNode.hidden) {
         clusterHiddenNodesIds.push(clusterNodeId);
         clusterNode.hidden = false;
         clusterNode.attributes.lineWidth = false;
         clusterNode.attributes.color = clusterNode.color;
-        clusterHiddenNodesHtmlList.push(`<li class="membership"><!--suppress JSUnresolvedFunction --><a href="#
-          ${clusterNode.label}" onclick="showActiveMode('${clusterNode.id}')" onmouseout="_sigma.refresh()">
-          ${clusterNode.label}</a></li>`);
+        $(
+          `<li class="membership"><!--suppress JSUnresolvedFunction -->
+            <a href="#${clusterNode.label}">${clusterNode.label}</a>
+          </li>`
+        )
+          .click(() => showActiveMode(clusterNode))
+          .appendTo(elements.info_link_ul);
       }
     }
-    _sigma.clusters[clusterName] = clusterHiddenNodesIds;
+    sigma.clusters[clusterName] = clusterHiddenNodesIds;
     //noinspection JSUnresolvedFunction
-    _sigma.refresh();
+    sigma.refresh();
     elements.info_name.html("<b>" + clusterName + "</b>");
     elements.info_data.hide();
     elements.info_p.html("Miembros del grupo:");
-    elements.info_link.find("ul").html(clusterHiddenNodesHtmlList.join(""));
-    elements.info.animate({width: 'show'}, 350);
+    elements.info.animate({ width: 'show' }, 350);
     elements.search.clean();
     elements.cluster.hide();
     return true;
   }
   return false;
-}
-
-function refresh() {
-  //noinspection JSUnresolvedFunction
-  _sigma.refresh();
 }

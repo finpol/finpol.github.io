@@ -351,6 +351,17 @@ font-weight:bold;
   color: #000;
 }
 
+.item-group {
+  line-height: 12px;
+}
+
+.item-group-color {
+  border: 1px solid #fff;
+  display: inline-block;
+  height: 12px;
+  width: 40px;
+}
+
 .link h2 {
   font-size: 1em;
   padding-top: 1em;

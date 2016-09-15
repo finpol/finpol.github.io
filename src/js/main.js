@@ -36,6 +36,7 @@ function setupElements() {
   elements.form = $("#mainpanel").find("form");
   elements.search = new Search(elements.form.find("#search"));
   elements.cluster = new Cluster(elements.form.find("#attributeselect"));
+  elements.modal = $('#moreInformationModal');
 }
 
 function setupSigma() {
@@ -160,13 +161,6 @@ function setupSigmaElements() {
       .value()
   );
 
-  //noinspection JSUnresolvedFunction
-  $("a.fb").fancybox({
-    minWidth: 400,
-    maxWidth: 800,
-    maxHeight: 600,
-  });
-
   $("#zoom").find("div.z").each((i, element) => {
     let $element = $(element);
     let rel = $element.attr("rel");
@@ -185,18 +179,8 @@ function setupSigmaElements() {
 
   let hashAnchor = window.location.hash.substr(1);
   if (hashAnchor.length > 0) {
-    switch (hashAnchor) {
-      case "information":
-        $.fancybox.open($("#information"), "Esta visualización muestra las donaciones recibidas declaradas por los"
-          + " partidos políticos para cada una de las listas políticas en las Elecciones Nacionales uruguayas del año"
-          + " 2014. El tamaño de los nodos es proporcional al dinero recibido.\n\nLos puntos rojos representan listas a"
-          + " la presidencia, los verdes candidatos a diputado y los amarillos a senador. Por otro lado, las empresas"
-          + " donantes están en azul y los particulares en color celeste.");
-        break;
-      default:
-        elements.search.exactMatch = elements.search.search(hashAnchor);
-        elements.search.clean();
-    }
+    elements.search.exactMatch = elements.search.search(hashAnchor);
+    elements.search.clean();
   }
 }
 

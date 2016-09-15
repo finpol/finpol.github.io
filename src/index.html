@@ -9,9 +9,12 @@
           content="Esta visualización muestra las donaciones recibidas declaradas por los partidos políticos para cada una de las listas políticas en las Elecciones Nacionales uruguayas del año 2014.">
     <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
 
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+
     <link rel="stylesheet" href="css/normalize.css">
-    <link rel="stylesheet" href="css/style.css" type="text/css" media="screen"/>
-    <link rel="stylesheet" media="screen and (max-height: 770px)" href="css/tablet.css"/>
+    <link rel="stylesheet" href="css/style.css" type="text/css" media="screen">
+    <link rel="stylesheet" media="screen and (max-height: 770px)" href="css/tablet.css">
 </head>
 
 <body>
@@ -22,17 +25,17 @@
 
 <div id="mainpanel">
     <div class="col">
-        <div id="title"><h2>Financiamiento de las elecciones 2014</h2></div>
+        <div id="title"><h1>Financiamiento de las elecciones 2014</h1></div>
         <div id="titletext">Esta visualización muestra las donaciones recibidas declaradas por los partidos políticos para cada una de las listas políticas en las Elecciones Nacionales uruguayas del año 2014.</div>
         <div class="info cf">
             <dl>
                 <dt class="moreinformation"></dt>
-                <dd class="line"><a href="#information" class="line fb">Más información</a></dd>
+                <dd class="line"><a href="#information" class="line fb" data-toggle="modal" data-target="#moreInformationModal">Más información</a></dd>
             </dl>
         </div>
         <div id="legend">
             <div class="box">
-                <h2>Leyenda:</h2>
+                <h2>Leyenda</h2>
                 <div class="item-group">
                     <!--suppress HtmlUnknownAnchorTarget -->
                     <div class="item-group-color legend-item" style="background: rgb(255,26,26)">
@@ -121,6 +124,28 @@
     </div>
 </div>
 
+<div id="moreInformationModal" class="modal fade" role="dialog" aria-labelledby="moreInformationModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Esta visualización muestra las donaciones recibidas declaradas por los
+                    partidos políticos para cada una de las listas políticas en las Elecciones Nacionales uruguayas del año
+                    2014. El tamaño de los nodos es proporcional al dinero recibido.</p>
+
+                <p>Los puntos rojos representan listas a
+                    la presidencia, los verdes candidatos a diputado y los amarillos a senador. Por otro lado, las empresas
+                    donantes están en azul y los particulares en color celeste.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!--div id="developercontainer">
     <a href="http://www.oii.ox.ac.uk" title="Oxford Internet Institute">
         <div id="oii"><span>OII</span></div>
@@ -134,6 +159,8 @@
 <script>window.jQuery || document.write('<script src="js/vendor/jquery.min.js"><\/script>')</script>
 
 <script src="js/main.js" type="text/javascript" language="javascript"></script>
+
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
 
 <!--suppress JSUnresolvedFunction -->
 <script>

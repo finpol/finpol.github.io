@@ -218,6 +218,7 @@ function Search(searchElem) {
     if (event.which == 13) {
       this.state.addClass("searching");
       this.search(this.input.val());
+      return false;
     }
   });
   this.state.click(() => {
@@ -256,15 +257,15 @@ function Search(searchElem) {
         .filter(node => textRegex.test(node.label.toLowerCase()))
         .value();
 
-      this.results.html("<b>Resultados encontrados: </b>");
       if (foundNodes.length == 0) {
         if (!showCluster(text)) {
-          $("<i>No se encontró ningún resultado.</i>")
-            .appendTo(this.results);
+          this.results.html("<i>No se encontró ningún resultado.</i>");
         }
-      } else if (foundNodes.length == 1) {
-        showActiveMode(foundNodes[0]);
       } else {
+        if (foundNodes.length == 1) {
+          showActiveMode(foundNodes[0]);
+        }
+        this.results.html("<b>Resultados encontrados: </b>");
         for (let foundNode of foundNodes) {
           $(`<a href="#${foundNode.label}">${foundNode.label}</a>`)
             .click(() => showActiveMode(foundNode))
@@ -272,7 +273,7 @@ function Search(searchElem) {
         }
       }
     }
-    foundNodes.length == 1 ? this.results.hide() : this.results.show();
+    this.results.show();
   }
 }
 
@@ -396,7 +397,7 @@ function showActiveMode(node) {
 
 function showCluster(clusterName) {
   let cluster = sigma.clusters[clusterName];
-  if (cluster.length > 0) {
+  if (typeof cluster !== "undefined" && cluster.length > 0) {
     sigma.detail = true;
     cluster.sort();
     //noinspection JSUnresolvedFunction

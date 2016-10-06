@@ -231,7 +231,7 @@ font-weight: bold;
 }
 
 #mainpanel .col {
-  width: 240px;
+  width: 270px;
   padding: 18px 18px 18px 18px;
   margin: 0;
 }
@@ -257,7 +257,7 @@ input {
   border: 1px solid #999;
   background-color: #fff;
   padding: 5px 7px 4px 7px;
-  width: 170px;
+  width: 200px;
 }
 
 #search .state {

@@ -9,43 +9,42 @@ import _ from "underscore";
 
 let elements;
 let sigma;
-
-const CLASSES = {
+let classes = {
   0: {
     color: "#ff1a1a",
-    count: 110,
     name: "Listas y candidatos a presidente",
   },
   1: {
     color: "#29d429",
-    count: 290,
     name: "Candidatos a senador y diputado",
   },
   2: {
     color: "#2929d4",
-    count: 594,
     name: "Empresas donantes",
   },
   3: {
     color: "#66f6ff",
-    count: 338,
     name: "Individuos donantes",
   },
   4: {
     color: "#d4d429",
-    count: 222,
     name: "Donaciones anónimas",
   },
   5: {
     color: "#ff1fce",
-    count: 107,
     name: "Donaciones \"varias\"",
   },
 };
 
 $(document).ready(() => {
   setupElements();
-  setupSigma();
+  $.getJSON('data.json', data => {
+    setupSigma(data);
+    setupLegend();
+    setupClassSelection();
+    setupZoomButtons();
+    checkHash();
+  });
 });
 
 function setupElements() {
@@ -65,72 +64,58 @@ function setupElements() {
   elements.info_close = elements.info.find(".left-close")
       .click(showNormalMode);
   elements.search = new Search(elements.form.find("#search"));
-  elements.cluster = new Cluster(elements.form.find("#attributeselect"));
+  elements.class = new Class(elements.form.find("#attributeselect"));
 }
 
-function setupSigma() {
-  $.getJSON('data.json', data => {
-    //noinspection JSUnresolvedFunction
-    for (let edge of data['edges']) {
-      edge['color'] = '#ccc'; // TODO: should remove this
-    }
+function setupSigma(data) {
+  for (let node of data.nodes) {
+    let _class = classes[node.class];
+    node.color = _class.color;
+  }
 
-    sigma = new Sigma({
-      graph: data,
-      renderers: [{
-        container: 'sigma-canvas',
-        type: 'canvas'
-      }],
-      settings: {
-        defaultEdgeColor: '#ccc',
-        defaultEdgeHoverColor: '#000',
-        //defaultEdgeType: 'curve', // TODO: should add this
-        defaultHoverLabelBGColor: "#002147",
-        defaultLabelHoverColor: "#fff",
-        doubleClickZoomDuration: 300,
-        edgeColor: 'default',
-        edgeHoverColor: 'default',
-        edgeHoverExtremities: true,
-        enableEdgeHovering: true,
-        fontStyle: "bold",
-        hoverFontStyle: "bold",
-        minEdgeSize: 0.5,
-        maxEdgeSize: 8,
-      }
-    });
+  for (let edge of data.edges) {
+    edge.color = '#ccc'; // TODO: should remove this
+  }
 
-    sigma.active = false;
-    sigma.detail = false;
-
-    //noinspection JSUnresolvedFunction
-    sigma.nodesById = _.chain(sigma.graph.nodes())
-      .groupBy(node => node.id)
-      .mapObject(nodes => nodes[0])
-      .value();
-
-    loadNeighbors();
-
-    //noinspection JSUnresolvedFunction
-    sigma.clusters = _.chain(sigma.graph.nodes())
-      .groupBy(node => node.color)
-      .mapObject(nodes => _.map(nodes, node => node.id))
-      .value();
-
-    //noinspection JSUnresolvedFunction
-    sigma.bind("clickNode", event => showActiveMode(event.data.node));
-
-    setupLegend();
-
-    setupClusterSelection();
-
-    setupZoomButtons();
-
-    let hashAnchor = window.location.hash.substr(1);
-    if (hashAnchor.length > 0) {
-      elements.search.exactMatch = elements.search.search(hashAnchor);
-      elements.search.clean();
+  sigma = new Sigma({
+    graph: data,
+    renderers: [{
+      container: 'sigma-canvas',
+      type: 'canvas'
+    }],
+    settings: {
+      defaultEdgeColor: '#ccc',
+      defaultEdgeHoverColor: '#000',
+      //defaultEdgeType: 'curve', // TODO: should add this
+      defaultHoverLabelBGColor: "#002147",
+      defaultLabelHoverColor: "#fff",
+      doubleClickZoomDuration: 300,
+      edgeColor: 'default',
+      edgeHoverColor: 'default',
+      edgeHoverExtremities: true,
+      enableEdgeHovering: true,
+      fontStyle: "bold",
+      hoverFontStyle: "bold",
+      minEdgeSize: 0.5,
+      maxEdgeSize: 8,
     }
   });
+
+  sigma.active = false;
+  sigma.detail = false;
+
+  //noinspection JSUnresolvedFunction
+  sigma.nodesById = _.chain(sigma.graph.nodes())
+    .groupBy(node => node.id)
+    .mapObject(nodes => nodes[0])
+    .value();
+
+  loadNeighbors();
+
+  loadNodesByClass();
+
+  //noinspection JSUnresolvedFunction
+  sigma.bind("clickNode", event => showActiveMode(event.data.node));
 }
 
 function loadNeighbors() {
@@ -173,47 +158,55 @@ function getIncidents() {
   return incidents;
 }
 
+function loadNodesByClass() {
+  //noinspection JSUnresolvedFunction
+  let nodesByClass = _.chain(sigma.graph.nodes())
+    .groupBy(node => node.class)
+    .mapObject(nodes => _.map(nodes, node => node.id))
+    .value();
+
+  //noinspection JSUnresolvedFunction
+  for (let classId of _.keys(classes)) {
+    let _class = classes[classId];
+    _class.nodes = nodesByClass[classId];
+  }
+}
+
 function setupLegend() {
   //noinspection JSUnresolvedFunction
-  _.chain(CLASSES)
+  _.chain(_.values(classes))
     .forEach(_class => {
-      $(`<div class="item-group">
-           <!--suppress HtmlUnknownAnchorTarget -->
-           <div class="item-group-color legend-item" style="background: ${_class.color}">
-           </div>
-           ${_class.name} (${_class.count})
-         </div>`)
+      $(
+        `<div class="item-group">
+          <div class="item-group-color legend-item" style="background: ${_class.color}">
+          </div>
+          ${_class.name} (${_class.nodes.length})
+        </div>`
+      )
         .appendTo(elements.legend_box);
     });
 }
 
-function setupClusterSelection() {
-  let clustersKeys = Object.keys(sigma.clusters);
-
+function setupClassSelection() {
   //noinspection JSUnresolvedFunction
-  elements.cluster.content(
-    _.chain(
-      _.zip(
-        _.range(1, clustersKeys.length + 1),
-        clustersKeys
-      )
-    )
-      .map(pair => {
-          let clusterNumber = pair[0];
-          let clusterId = pair[1];
-          return `<div class="item-group">
-                    <a href="#${clusterId}">
-                      <div class="item-group-color" style="background: ${clusterId}">
-                      </div>
-                      Grupo ${clusterNumber} (${sigma.clusters[clusterId].length} miembros)
-                    </a>
-                  </div>`;
+  elements.class.content(
+    _.chain(_.keys(classes))
+      .map(classId => {
+        let _class = classes[classId];
+        return `<div class="item-group">
+                  <a href="#${classId}">
+                    <div class="item-group-color" style="background: ${_class.color}">
+                    </div>
+                    ${_class.name} (${_class.nodes.length})
+                  </a>
+                </div>`;
         }
       )
       .reduce((accumulator, html) => `${accumulator}${html}`)
       .value()
   );
 }
+
 function setupZoomButtons() {
   $("#zoom").find("div.z").each((i, element) => {
     let $element = $(element);
@@ -230,6 +223,14 @@ function setupZoomButtons() {
       }
     });
   });
+}
+
+function checkHash() {
+  let hashAnchor = window.location.hash.substr(1);
+  if (hashAnchor.length > 0) {
+    elements.search.exactMatch = elements.search.search(hashAnchor);
+    elements.search.clean();
+  }
 }
 
 function Search(searchElem) {
@@ -280,7 +281,7 @@ function Search(searchElem) {
         .value();
 
       if (foundNodes.length == 0) {
-        if (!showCluster(text)) {
+        if (!showClass(text)) {
           this.results.html("<i>No se encontró ningún resultado.</i>");
         }
       } else {
@@ -299,17 +300,17 @@ function Search(searchElem) {
   }
 }
 
-function Cluster(clusterElem) {
-  this.cluster = clusterElem;
+function Class(classElem) {
+  this.class = classElem;
   this.display = false;
-  this.list = this.cluster.find(".list");
+  this.list = this.class.find(".list");
   this.list.empty();
-  this.select = this.cluster.find(".select");
-  this.select.click(() => elements.cluster.toggle());
+  this.select = this.class.find(".select");
+  this.select.click(() => elements.class.toggle());
   this.toggle = () => this.display ? this.hide() : this.show();
   this.content = html => {
     this.list.html(html);
-    this.list.find("a").click(() => showCluster($(event.currentTarget).attr("href").substr(1)));
+    this.list.find("a").click(() => showClass($(event.currentTarget).attr("href").substr(1)));
   };
   this.hide = () => {
     this.display = false;
@@ -329,7 +330,7 @@ function showNormalMode() {
     sigma.detail = true;
     //noinspection JSUnresolvedFunction
     elements.info.delay(400).animate({width: 'hide'}, 350);
-    elements.cluster.hide();
+    elements.class.hide();
     //noinspection JSUnresolvedFunction
     for (let edge of sigma.graph.edges()) {
       edge.hidden = false;
@@ -402,9 +403,9 @@ function showActiveMode(node) {
   window.location.hash = node.label;
 }
 
-function showCluster(clusterName) {
-  let cluster = sigma.clusters[clusterName];
-  if (typeof cluster !== "undefined" && cluster.length > 0) {
+function showClass(classId) {
+  let _class = classes[classId];
+  if (typeof _class !== "undefined" && _class.nodes.length > 0) {
     sigma.detail = true;
 
     //noinspection JSUnresolvedFunction
@@ -420,32 +421,32 @@ function showCluster(clusterName) {
 
     elements.info_link_ul.empty();
 
-    let clusterHiddenNodesIds = [];
-    for (let clusterNodeId of cluster) {
-      let clusterNode = sigma.nodesById[clusterNodeId];
-      if (clusterNode.hidden) {
-        clusterHiddenNodesIds.push(clusterNodeId);
-        clusterNode.hidden = false;
-        clusterNode.attributes.lineWidth = false;
-        clusterNode.attributes.color = clusterNode.color;
+    let classHiddenNodesIds = [];
+    for (let classNodeId of _class.nodes) {
+      let classNode = sigma.nodesById[classNodeId];
+      if (classNode.hidden) {
+        classHiddenNodesIds.push(classNodeId);
+        classNode.hidden = false;
+        classNode.attributes.lineWidth = false;
+        classNode.attributes.color = classNode.color;
         $(
           `<li class="membership"><!--suppress JSUnresolvedFunction -->
-            <a href="#${clusterNode.label}">${clusterNode.label}</a>
+            <a href="#${classNode.label}">${classNode.label}</a>
           </li>`
         )
-          .click(() => showActiveMode(clusterNode))
+          .click(() => showActiveMode(classNode))
           .appendTo(elements.info_link_ul);
       }
     }
-    sigma.clusters[clusterName] = clusterHiddenNodesIds;
+    classes[classId].nodes = classHiddenNodesIds;
     //noinspection JSUnresolvedFunction
     sigma.refresh();
-    elements.info_name.html("<b>" + clusterName + "</b>");
+    elements.info_name.html("<b>" + classId + "</b>");
     elements.info_data.hide();
     elements.info_p.html("Miembros del grupo:");
     elements.info.animate({ width: 'show' }, 350);
     elements.search.clean();
-    elements.cluster.hide();
+    elements.clas.hide();
     return true;
   }
   return false;

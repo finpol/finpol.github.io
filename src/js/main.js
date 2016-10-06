@@ -22,21 +22,19 @@ function setupElements() {
   elements = {
     calculating: false,
     info: $("#attributepane"),
+    form: $("#mainpanel").find("form"),
+    modal: $('#moreInformationModal'),
   };
   elements.info_donnees = elements.info.find(".nodeattributes");
   elements.info_name = elements.info.find(".name");
   elements.info_link = elements.info.find(".link");
-  elements.info_link_ul = elements.info_link.find("ul");
   elements.info_data = elements.info.find(".data");
-  elements.info_close = elements.info.find(".returntext");
-  elements.info_close2 = elements.info.find(".close");
   elements.info_p = elements.info.find(".p");
-  elements.info_close.click(showNormalMode);
-  elements.info_close2.click(showNormalMode);
-  elements.form = $("#mainpanel").find("form");
+  elements.info_link_ul = elements.info_link.find("ul");
+  elements.info_close = elements.info.find(".left-close")
+      .click(showNormalMode);
   elements.search = new Search(elements.form.find("#search"));
   elements.cluster = new Cluster(elements.form.find("#attributeselect"));
-  elements.modal = $('#moreInformationModal');
 }
 
 function setupSigma() {
@@ -90,7 +88,13 @@ function setupSigma() {
     //noinspection JSUnresolvedFunction
     sigma.bind("clickNode", event => showActiveMode(event.data.node));
 
-    setupSigmaElements();
+    setupSigmaRelatedElements();
+
+    let hashAnchor = window.location.hash.substr(1);
+    if (hashAnchor.length > 0) {
+      elements.search.exactMatch = elements.search.search(hashAnchor);
+      elements.search.clean();
+    }
   });
 }
 
@@ -134,7 +138,7 @@ function getIncidents() {
   return incidents;
 }
 
-function setupSigmaElements() {
+function setupSigmaRelatedElements() {
   let clustersKeys = Object.keys(sigma.clusters);
 
   //noinspection JSUnresolvedFunction
@@ -176,28 +180,14 @@ function setupSigmaElements() {
       }
     });
   });
-
-  let hashAnchor = window.location.hash.substr(1);
-  if (hashAnchor.length > 0) {
-    elements.search.exactMatch = elements.search.search(hashAnchor);
-    elements.search.clean();
-  }
 }
 
 function Search(searchElem) {
   this.input = searchElem.find("input[name=search]");
   this.state = searchElem.find(".state");
   this.results = searchElem.find(".results");
-  this.exactMatch = false;
   this.lastSearch = "";
   this.searching = false;
-  this.input.focus(() => {
-    if (!$(this).data("focus")) {
-      $(this).data("focus", true);
-      $(this).removeClass("empty");
-    }
-    this.clean();
-  });
   this.input.keydown(event => {
     if (event.which == 13) {
       this.state.addClass("searching");
@@ -227,9 +217,7 @@ function Search(searchElem) {
     this.input.val("");
   };
   this.search = text => {
-    let foundNodes = [];
-    let textRegex = new RegExp(this.exactMatch ? ("^" + text + "$").toLowerCase() : text.toLowerCase());
-    this.exactMatch = false;
+    let textRegex = new RegExp(text.toLowerCase());
     this.searching = true;
     this.lastSearch = text;
     this.results.empty();
@@ -237,7 +225,7 @@ function Search(searchElem) {
       this.results.html("<i>El texto a buscar debe contener al menos 3 letras.</i>");
     } else {
       //noinspection JSUnresolvedFunction
-      foundNodes = _.chain(sigma.graph.nodes())
+      let foundNodes = _.chain(sigma.graph.nodes())
         .filter(node => textRegex.test(node.label.toLowerCase()))
         .value();
 
@@ -294,15 +282,11 @@ function showNormalMode() {
     elements.cluster.hide();
     //noinspection JSUnresolvedFunction
     for (let edge of sigma.graph.edges()) {
-      //edge.attributes.color = false;
       edge.hidden = false;
     }
     //noinspection JSUnresolvedFunction
     for (let node of sigma.graph.nodes()) {
       node.hidden = false;
-      node.attributes.color = false;
-      node.attributes.lineWidth = false;
-      node.attributes.size = false
     }
     //noinspection JSUnresolvedFunction
     sigma.refresh();
@@ -314,27 +298,16 @@ function showNormalMode() {
 
 function showActiveMode(node) {
   sigma.detail = true;
-  //noinspection JSUnresolvedFunction
-  for (let edge of sigma.graph.edges()) {
-    edge.attributes.lineWidth = false;
-    //edge.attributes.color = "#000";
-  }
 
   //noinspection JSUnresolvedFunction
   for (let node1 of sigma.graph.nodes()) {
     node1.hidden = true;
-    node1.attributes.lineWidth = false;
-    node1.attributes.color = node1.color;
   }
 
   node.hidden = false;
-  node.attributes.color = node.color;
-  node.attributes.lineWidth = 6;
-  node.attributes.strokeStyle = "#000";
 
   for (let neighbor of sigma.neighbors[node.id]) {
     neighbor.hidden = false;
-    neighbor.attributes.lineWidth = false;
   }
 
   //noinspection JSUnresolvedFunction
@@ -383,7 +356,7 @@ function showCluster(clusterName) {
   let cluster = sigma.clusters[clusterName];
   if (typeof cluster !== "undefined" && cluster.length > 0) {
     sigma.detail = true;
-    cluster.sort();
+
     //noinspection JSUnresolvedFunction
     for (let edge of sigma.graph.edges()) {
       edge.hidden = false;

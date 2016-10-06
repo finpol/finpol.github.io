@@ -10,6 +10,39 @@ import _ from "underscore";
 let elements;
 let sigma;
 
+const CLASSES = {
+  0: {
+    color: "#ff1a1a",
+    count: 110,
+    name: "Listas y candidatos a presidente",
+  },
+  1: {
+    color: "#29d429",
+    count: 290,
+    name: "Candidatos a senador y diputado",
+  },
+  2: {
+    color: "#2929d4",
+    count: 594,
+    name: "Empresas donantes",
+  },
+  3: {
+    color: "#66f6ff",
+    count: 338,
+    name: "Individuos donantes",
+  },
+  4: {
+    color: "#d4d429",
+    count: 222,
+    name: "Donaciones anónimas",
+  },
+  5: {
+    color: "#ff1fce",
+    count: 107,
+    name: "Donaciones \"varias\"",
+  },
+};
+
 $(document).ready(() => {
   setupElements();
   setupSigma();
@@ -18,8 +51,9 @@ $(document).ready(() => {
 function setupElements() {
   elements = {
     calculating: false,
-    info: $("#attributepane"),
     form: $("#mainpanel").find("form"),
+    info: $("#attributepane"),
+    legend_box: $(".box"),
     modal: $('#moreInformationModal'),
   };
   elements.info_donnees = elements.info.find(".nodeattributes");
@@ -85,7 +119,11 @@ function setupSigma() {
     //noinspection JSUnresolvedFunction
     sigma.bind("clickNode", event => showActiveMode(event.data.node));
 
-    setupSigmaRelatedElements();
+    setupLegend();
+
+    setupClusterSelection();
+
+    setupZoomButtons();
 
     let hashAnchor = window.location.hash.substr(1);
     if (hashAnchor.length > 0) {
@@ -135,17 +173,31 @@ function getIncidents() {
   return incidents;
 }
 
-function setupSigmaRelatedElements() {
+function setupLegend() {
+  //noinspection JSUnresolvedFunction
+  _.chain(CLASSES)
+    .forEach(_class => {
+      $(`<div class="item-group">
+           <!--suppress HtmlUnknownAnchorTarget -->
+           <div class="item-group-color legend-item" style="background: ${_class.color}">
+           </div>
+           ${_class.name} (${_class.count})
+         </div>`)
+        .appendTo(elements.legend_box);
+    });
+}
+
+function setupClusterSelection() {
   let clustersKeys = Object.keys(sigma.clusters);
 
   //noinspection JSUnresolvedFunction
   elements.cluster.content(
     _.chain(
-        _.zip(
-          _.range(1, clustersKeys.length + 1),
-          clustersKeys
-        )
+      _.zip(
+        _.range(1, clustersKeys.length + 1),
+        clustersKeys
       )
+    )
       .map(pair => {
           let clusterNumber = pair[0];
           let clusterId = pair[1];
@@ -161,14 +213,15 @@ function setupSigmaRelatedElements() {
       .reduce((accumulator, html) => `${accumulator}${html}`)
       .value()
   );
-
+}
+function setupZoomButtons() {
   $("#zoom").find("div.z").each((i, element) => {
     let $element = $(element);
     let rel = $element.attr("rel");
     $element.click(() => {
       if (rel == "center") {
         //noinspection JSUnresolvedFunction
-        sigma.cameras[0].goTo({ ratio: 1, x: 0, y: 0 });
+        sigma.cameras[0].goTo({ratio: 1, x: 0, y: 0});
       } else {
         //noinspection JSUnresolvedFunction
         Sigma.utils.zoomTo(sigma.cameras[0], 0, 0, rel == "in" ? 0.5 : 1.5, {

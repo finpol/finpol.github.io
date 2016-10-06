@@ -32,7 +32,6 @@
   },
   "homepage": "https://github.com/bryant1410/financiamiento-elecciones-2014",
   "dependencies": {
-    "fancybox": "^3.0.0",
     "jquery": "^3.1.0",
     "sigma-webpack": "^1.1.1-webpack",
     "underscore": "^1.8.3"

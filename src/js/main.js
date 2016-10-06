@@ -1,14 +1,11 @@
 'use strict';
 
-import fb from "fancybox";
 import $ from "jquery";
 import Sigma from "sigma-webpack";
 import _ from "underscore";
 
 // Using sigma-webpack version because GH dependency of sigma repo didn't work, and the last patch in master is needed
 // in order to work with node. Otherwise, the container is not found.
-
-fb($);
 
 let elements;
 let sigma;

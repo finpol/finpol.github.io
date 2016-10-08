@@ -73,7 +73,11 @@ function setupSigma(data) {
     node.color = _class.color;
   }
 
+  let nextEdgeId = 0;
   for (let edge of data.edges) {
+    edge.id = nextEdgeId;
+    nextEdgeId++;
+    
     edge.color = '#ccc'; // TODO: should remove this
   }
 

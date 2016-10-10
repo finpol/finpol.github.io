@@ -9,7 +9,7 @@ import _ from "underscore";
 
 let elements;
 let sigma;
-let classes = {
+const CLASSES = {
   0: {
     color: "#ff1a1a",
     name: "Listas y candidatos a presidente",
@@ -34,6 +34,49 @@ let classes = {
     color: "#ff1fce",
     name: "Donaciones \"varias\"",
   },
+};
+const DEPARTMENTS = {
+  0: "Artigas",
+  1: "Canelones",
+  2: "Cerro Largo",
+  3: "Colonia",
+  4: "Durazno",
+  5: "Flores",
+  6: "Florida",
+  7: "Lavalleja",
+  8: "Maldonado",
+  9: "Montevideo",
+  10: "Paysandú",
+  11: "Río Negro",
+  12: "Rivera",
+  13: "Rocha",
+  14: "Salto",
+  15: "San José",
+  16: "Soriano",
+  17: "Tacuarembó",
+  18: "Treinta y Tres",
+  19: "Todo el país"
+};
+const LEVELS = {
+  0: "Presidencia",
+  1: "Senado",
+  2: "Diputados"
+};
+const PARTIES = {
+  0: "Frente Amplio",
+  1: "Partido Nacional",
+  2: "Partido Colorado",
+  3: "Partido Independiente",
+  4: "Unidad Popular",
+  5: "Partido de los Trabajadores",
+  6: "Partido Ecologista Radical Intransigente",
+};
+const DONATION_TYPES = {
+  0: "Persona",
+  1: "CANDIDATO CARGO ELECTIVO",
+  2: "Anónima",
+  3: "Empresa",
+  4: "Rifa, bono o cena",
 };
 
 $(document).ready(() => {
@@ -69,7 +112,7 @@ function setupElements() {
 
 function setupSigma(data) {
   for (let node of data.nodes) {
-    let _class = classes[node.class];
+    let _class = CLASSES[node.class];
     node.color = _class.color;
   }
 
@@ -77,7 +120,7 @@ function setupSigma(data) {
   for (let edge of data.edges) {
     edge.id = nextEdgeId;
     nextEdgeId++;
-    
+
     edge.color = '#ccc'; // TODO: should remove this
   }
 
@@ -170,15 +213,15 @@ function loadNodesByClass() {
     .value();
 
   //noinspection JSUnresolvedFunction
-  for (let classId of _.keys(classes)) {
-    let _class = classes[classId];
+  for (let classId of _.keys(CLASSES)) {
+    let _class = CLASSES[classId];
     _class.nodes = nodesByClass[classId];
   }
 }
 
 function setupLegend() {
   //noinspection JSUnresolvedFunction
-  _.chain(_.values(classes))
+  _.chain(_.values(CLASSES))
     .forEach(_class => {
       $(
         `<div class="item-group">
@@ -194,9 +237,9 @@ function setupLegend() {
 function setupClassSelection() {
   //noinspection JSUnresolvedFunction
   elements.class.content(
-    _.chain(_.keys(classes))
+    _.chain(_.keys(CLASSES))
       .map(classId => {
-        let _class = classes[classId];
+        let _class = CLASSES[classId];
         return `<div class="item-group">
                   <a href="#${classId}">
                     <div class="item-group-color" style="background: ${_class.color}">
@@ -408,7 +451,7 @@ function showActiveMode(node) {
 }
 
 function showClass(classId) {
-  let _class = classes[classId];
+  let _class = CLASSES[classId];
   if (typeof _class !== "undefined" && _class.nodes.length > 0) {
     sigma.detail = true;
 
@@ -442,7 +485,7 @@ function showClass(classId) {
           .appendTo(elements.info_link_ul);
       }
     }
-    classes[classId].nodes = classHiddenNodesIds;
+    CLASSES[classId].nodes = classHiddenNodesIds;
     //noinspection JSUnresolvedFunction
     sigma.refresh();
     elements.info_name.html("<b>" + classId + "</b>");

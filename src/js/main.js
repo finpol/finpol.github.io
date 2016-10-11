@@ -16,7 +16,7 @@ const CLASSES = {
   },
   1: {
     color: "#29d429",
-    name: "Candidatos a senador y diputado",
+    name: "Candidatos donantes",
   },
   2: {
     color: "#2929d4",
@@ -58,9 +58,9 @@ const DEPARTMENTS = {
   19: "Todo el país"
 };
 const LEVELS = {
-  0: "Presidencia",
-  1: "Senado",
-  2: "Diputados"
+  0: "Fórmula presidencial",
+  1: "Candidato al senado",
+  2: "Candidatos a diputados"
 };
 const PARTIES = {
   0: "Frente Amplio",
@@ -70,13 +70,6 @@ const PARTIES = {
   4: "Unidad Popular",
   5: "Partido de los Trabajadores",
   6: "Partido Ecologista Radical Intransigente",
-};
-const DONATION_TYPES = {
-  0: "Persona",
-  1: "CANDIDATO CARGO ELECTIVO",
-  2: "Anónima",
-  3: "Empresa",
-  4: "Rifa, bono o cena",
 };
 
 $(document).ready(() => {
@@ -426,23 +419,12 @@ function showActiveMode(node) {
         .appendTo(elements.info_link_ul)
     );
 
-  elements.info_name.html(
-    `<div>
-      <span>${node.label}</span>
-    </div>`
-  );
+  elements.info_name.html(`<h3>${node.label}</h3>`);
 
-  //noinspection JSUnresolvedFunction
-  elements.info_data.html(
-    _.chain(node.attributes)
-      .reject(attr => attr == false)
-      .map(attr => `<span><strong>${attr}:</strong>${attr}</span>`)
-      .reduce((accumulator, html) => `${accumulator}<br />${html}`)
-      .value()
-  );
-
+  elements.info_data.html(getFormattedDataForNode(node));
   elements.info_data.show();
-  elements.info_p.html("Conexiones:");
+
+  elements.info_p.html(`Donaciones ${node.class == 0 ? "recibidas" : "emitidas"}`);
   elements.info.animate({ width: 'show' }, 350);
   elements.info_donnees.hide();
   elements.info_donnees.show();
@@ -497,4 +479,28 @@ function showClass(classId) {
     return true;
   }
   return false;
+}
+
+function getFormattedDataForNode(node) {
+  switch (node.class) {
+    case 0:
+      return `<strong>${PARTIES[node.attributes.party]}</strong>
+              <br />
+              <strong>${LEVELS[node.attributes.level]}</strong>
+              ${node.attributes.department == 19
+                  ? "" : `<br /><strong>${DEPARTMENTS[node.attributes.department]}</strong>`}
+              ${node.attributes.level == 2
+                  ? `<br /><strong>Primer titular</strong>: ${node.attributes.first_holder}` : ""}
+      `;
+    case 1:
+      return "Candidato";
+    case 2:
+      return "Empresa";
+    case 3:
+      return "Individuo";
+    case 4:
+      return "Donación anónima";
+    default:
+      return "";
+  }
 }

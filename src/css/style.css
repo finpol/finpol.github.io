@@ -56,11 +56,11 @@ canvas#sigma_bg_1 {
   bottom: 0;
   top: 0;
   right: 0;
-	width: 240px;
+	width: 360px;
 	background-color: #fff;
 	margin: 0;
 	word-wrap: break-word;
-	background-color: rgba(255,255,255,0.8);
+	background-color: rgba(255, 255, 255, 0.8);
 	border-left: 1px solid #ccc;
 	padding: 0 18px 0 18px;
 	z-index: 1;
@@ -70,17 +70,6 @@ canvas#sigma_bg_1 {
 #attributepane .text {
 	height: 100%;
 }
-
-#attributepane .headertext {
-	color: #000;
-	margin-bottom: 5px;
-	height: 14px;
-	border-bottom: 1px solid #999;
-	padding: 0 0 10px 0;
-	font-size: 16px;
-	font-weight: bold;
-}
-
 
 #attributepane .returntext em {
   background: url('../images/sprite.png') no-repeat -91px -13px;
@@ -121,18 +110,16 @@ canvas#sigma_bg_1 {
 
 #attributepane .nodeattributes {
 	display: block;
-	height: 85%;
-	overflow-y: scroll;
+	height: 95%;
 	overflow-x: hidden;
-	border-bottom: 1px solid #999;
 }
 
 #attributepane .name {
-font-size: 14px;
-cursor: default;
-padding-bottom: 10px;
-padding-top: 18px;
-font-weight: bold;
+  font-size: 18px;
+  cursor: default;
+  padding-bottom: 10px;
+  padding-top: 18px;
+  font-weight: bold;
 }
 
 #attributepane .data {
@@ -148,7 +135,7 @@ font-weight: bold;
 }
 
 #attributepane .link {
-  padding: 0 0 0 4px;
+  padding: 0 0 0 8px;
 }
 
 #attributepane .link li {
@@ -157,6 +144,7 @@ font-weight: bold;
 }
 
 #attributepane .p {
+  padding-bottom: 5px;
   padding-top: 10px;
   font-weight: bold;
   font-size: 14px;
@@ -169,9 +157,7 @@ font-weight: bold;
   padding-left: 31px;
   line-height: 36px;
   background: url('../images/fancybox_sprite.png') no-repeat;
-  margin-bottom: 25px;
-  font-weight: bold;
-  font-size: 14px;
+  font-size: 12px;
 }
 
 #developercontainer {
@@ -364,10 +350,6 @@ input {
 .link h2 {
   font-size: 1em;
   padding-top: 1em;
-}
-
-#mainpanel dl {
-	padding-bottom: 10px;
 }
 
 #mainpanel h2 {

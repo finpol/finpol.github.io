@@ -151,12 +151,15 @@ function setupSigma(data) {
     .value();
 
   loadNeighbors();
+  loadEdgesById();
 
   loadNodesByClass();
 
   //noinspection JSUnresolvedFunction
   sigma.bind("clickNode", event => showActiveMode(event.data.node));
 }
+
+
 
 function loadNeighbors() {
   let adjacencies = getAdjacencies();
@@ -197,6 +200,52 @@ function getIncidents() {
 
   return incidents;
 }
+
+
+
+
+function loadEdgesById() {
+  let adjacentEdges = getAdjacentEdges();
+  let incidentEdges = getIncidentEdges();
+
+  //noinspection JSUnresolvedFunction
+  sigma.edgesById = _.chain(adjacentEdges)
+    .mapObject((nodes, id) => nodes.concat(incidentEdges[id]))
+    .mapObject(nodes => _.sortBy(nodes, 'size').reverse())
+    .value();
+}
+
+function getAdjacentEdges() {
+  //noinspection JSUnresolvedFunction
+  let adjacentEdges = _.chain(sigma.graph.edges())
+    .groupBy(edge => edge.source)
+    .value();
+
+  //noinspection JSUnresolvedFunction
+  _.chain(sigma.graph.nodes())
+    .map(node => node.id)
+    .reject(id => id in adjacentEdges)
+    .each(id => adjacentEdges[id] = []);
+
+  return adjacentEdges;
+}
+
+function getIncidentEdges() {
+  //noinspection JSUnresolvedFunction
+  let incidentEdges = _.chain(sigma.graph.edges())
+    .groupBy(edge => edge.target)
+    .value();
+
+  //noinspection JSUnresolvedFunction
+  _.chain(sigma.graph.nodes())
+    .map(node => node.id)
+    .reject(id => id in incidentEdges)
+    .each(id => incidentEdges[id] = []);
+
+  return incidentEdges;
+}
+
+
 
 function loadNodesByClass() {
   //noinspection JSUnresolvedFunction
@@ -406,25 +455,35 @@ function showActiveMode(node) {
 
   elements.info_link_ul.empty();
 
+  let totalDonations = 0;
+
+  let byOrToWord = node.class == 0 ? "por" : "a";
+
   //noinspection JSUnresolvedFunction
-  _.chain(sigma.neighbors[node.id])
-    .sortBy(node => node.label)
-    .each(node =>
+  _.chain(sigma.edgesById[node.id])
+    .each(edge => {
+      totalDonations += edge.size;
+
+      let neighborId = node.id == edge.source ? edge.target : edge.source;
+      let neighbor = sigma.nodesById[neighborId];
+
       $(
         `<li class="membership">
-          <a href="#${node.label}">${node.label}</a>
+          ${formatAsCurrency(edge.size)} ${byOrToWord} <a href="#${neighbor.label}">${neighbor.label}</a>
         </li>`
       )
-        .click(() => showActiveMode(node))
-        .appendTo(elements.info_link_ul)
-    );
+        .click(() => showActiveMode(neighbor))
+        .appendTo(elements.info_link_ul);
+    });
 
   elements.info_name.html(`<h3>${node.label}</h3>`);
 
   elements.info_data.html(getFormattedDataForNode(node));
   elements.info_data.show();
 
-  elements.info_p.html(`Donaciones ${node.class == 0 ? "recibidas" : "emitidas"}`);
+  let receivedOrEmittedWord = node.class == 0 ? "recibidas" : "emitidas";
+
+  elements.info_p.html(`${formatAsCurrency(totalDonations)} en donaciones ${receivedOrEmittedWord}`);
   elements.info.animate({ width: 'show' }, 350);
   elements.info_donnees.hide();
   elements.info_donnees.show();
@@ -503,4 +562,20 @@ function getFormattedDataForNode(node) {
     default:
       return "";
   }
+}
+
+function formatAsCurrency(number) {
+  return `$ ${addSpanishThousandsSeparator(number)}`;
+}
+
+function addSpanishThousandsSeparator(nStr) {
+  nStr += '';
+  let x = nStr.split(',');
+  let x1 = x[0];
+  let x2 = x.length > 1 ? ',' + x[1] : '';
+  let rgx = /(\d+)(\d{3})/;
+  while (rgx.test(x1)) {
+    x1 = x1.replace(rgx, '$1' + '.' + '$2');
+  }
+  return x1 + x2;
 }

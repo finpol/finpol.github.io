@@ -133,7 +133,6 @@ function setupSigma(data) {
       defaultEdgeHoverColor: '#212121',
       //defaultEdgeType: 'curve', // TODO: should add this
       defaultHoverLabelBGColor: "#607D8B",
-      defaultLabelHoverColor: "#fff",
       doubleClickZoomDuration: 300,
       edgeColor: 'default',
       edgeHoverColor: 'default',

@@ -133,6 +133,7 @@ function setupSigma(data) {
       defaultEdgeHoverColor: '#212121',
       //defaultEdgeType: 'curve', // TODO: should add this
       defaultHoverLabelBGColor: "#607D8B",
+      //defaultLabelSize: 17,
       doubleClickZoomDuration: 300,
       edgeColor: 'default',
       edgeHoverColor: 'default',
@@ -141,8 +142,8 @@ function setupSigma(data) {
       fontStyle: "bold",
       hoverFontStyle: "bold",
       labelThreshold: 4,
+      maxEdgeSize: MIN_NODE_SIZE,
       minEdgeSize: 0.5,
-      maxEdgeSize: 8,
     }
   });
 

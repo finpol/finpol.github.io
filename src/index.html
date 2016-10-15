@@ -4,10 +4,23 @@
 <head>
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <title>Financiamiento de las elecciones 2014</title>
+    <title>Financiamiento de las Elecciones Nacionales de 2014 de Uruguay</title>
     <meta name="description"
           content="Esta visualización muestra las donaciones recibidas declaradas por los partidos políticos para cada una de las listas políticas en las Elecciones Nacionales uruguayas del año 2014.">
     <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Financiamiento de las Elecciones Nacionales de 2014 de Uruguay" />
+    <meta property="og:image" content="https://bryant1410.github.io/financiamiento-elecciones-2014/images/sample3.png" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:title" content="¿De dónde sale el dinero de las campañas políticas?" />
+    <meta property="og:description" content="Visualización que muestra la red de donaciones que financió las campañas políticas de las Elecciones Nacionales de Uruguay del año 2014." />
+    <meta property="og:url" content="https://bryant1410.github.io/financiamiento-elecciones-2014/" />
+    <meta property="fb:app_id" content="339211663094886" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@ucudal" />
+    <meta name="twitter:creator" content="@ucudal" />
 
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
@@ -18,6 +31,24 @@
 </head>
 
 <body>
+
+<script>
+    window.fbAsyncInit = function() {
+        FB.init({
+            appId      : '339211663094886',
+            xfbml      : true,
+            version    : 'v2.8'
+        });
+    };
+
+    (function(d, s, id){
+        var js, fjs = d.getElementsByTagName(s)[0];
+        if (d.getElementById(id)) {return;}
+        js = d.createElement(s); js.id = id;
+        js.src = "//connect.facebook.net/en_US/sdk.js";
+        fjs.parentNode.insertBefore(js, fjs);
+    }(document, 'script', 'facebook-jssdk'));
+</script>
 
 <div class="sigma-parent">
     <div class="sigma-expand" id="sigma-canvas"></div>

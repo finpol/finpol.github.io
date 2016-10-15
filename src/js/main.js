@@ -11,27 +11,27 @@ let elements;
 let sigma;
 const CLASSES = {
   0: {
-    color: "#ff1a1a",
+    color: "#f44336",
     name: "Listas y candidatos a presidente",
   },
   1: {
-    color: "#29d429",
+    color: "#4caf50",
     name: "Candidatos donantes",
   },
   2: {
-    color: "#2929d4",
+    color: "#3f51b5",
     name: "Empresas donantes",
   },
   3: {
-    color: "#66f6ff",
+    color: "#03a9f4",
     name: "Individuos donantes",
   },
   4: {
-    color: "#d4d429",
+    color: "#ffc107",
     name: "Donaciones anónimas",
   },
   5: {
-    color: "#ff1fce",
+    color: "#9c27b0",
     name: "Donaciones \"varias\"",
   },
 };
@@ -73,7 +73,7 @@ const PARTIES = {
 };
 
 const MIN_NODE_SIZE = 8;
-const MAX_NODE_SIZE = 80;
+const MAX_NODE_SIZE = 75;
 
 $(document).ready(() => {
   setupElements();
@@ -130,9 +130,9 @@ function setupSigma(data) {
     }],
     settings: {
       defaultEdgeColor: '#ccc',
-      defaultEdgeHoverColor: '#000',
+      defaultEdgeHoverColor: '#212121',
       //defaultEdgeType: 'curve', // TODO: should add this
-      defaultHoverLabelBGColor: "#002147",
+      defaultHoverLabelBGColor: "#607D8B",
       defaultLabelHoverColor: "#fff",
       doubleClickZoomDuration: 300,
       edgeColor: 'default',

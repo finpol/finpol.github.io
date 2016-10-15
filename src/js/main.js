@@ -72,6 +72,9 @@ const PARTIES = {
   6: "Partido Ecologista Radical Intransigente",
 };
 
+const MIN_NODE_SIZE = 8;
+const MAX_NODE_SIZE = 80;
+
 $(document).ready(() => {
   setupElements();
   $.getJSON('data.json', data => {
@@ -109,6 +112,8 @@ function setupSigma(data) {
     node.color = _class.color;
   }
 
+  setNodeSize(data);
+
   let nextEdgeId = 0;
   for (let edge of data.edges) {
     edge.id = nextEdgeId;
@@ -136,6 +141,7 @@ function setupSigma(data) {
       enableEdgeHovering: true,
       fontStyle: "bold",
       hoverFontStyle: "bold",
+      labelThreshold: 5,
       minEdgeSize: 0.5,
       maxEdgeSize: 8,
     }
@@ -157,6 +163,50 @@ function setupSigma(data) {
 
   //noinspection JSUnresolvedFunction
   sigma.bind("clickNode", event => showActiveMode(event.data.node));
+}
+
+function setNodeSize(data) {
+  let amountPerNode = getAmountPerNode(data);
+
+  //noinspection JSUnresolvedFunction
+  let minAmount = _.min(amountPerNode, amount => amount);
+  //noinspection JSUnresolvedFunction
+  let maxAmount = _.max(amountPerNode, amount => amount);
+
+  for (let node of data.nodes) {
+    // The size is a linear interpolation wrt the min and max amount, and the min and max node size possible.
+    node.size = ((maxAmount - minAmount) * amountPerNode[node.id]
+      + (MIN_NODE_SIZE * maxAmount - MAX_NODE_SIZE * minAmount)) / (MAX_NODE_SIZE - MIN_NODE_SIZE);
+  }
+}
+
+function getAmountPerNode(data) {
+  //noinspection JSUnresolvedFunction
+  let amountPerSource = _.chain(data.edges)
+    .groupBy(edge => edge.source)
+    .mapObject(edges => _.reduce(edges, (currentAmount, edge) => currentAmount + edge.size, 0))
+    .value();
+
+  //noinspection JSUnresolvedFunction
+  _.chain(data.nodes)
+    .map(node => node.id)
+    .reject(id => id in amountPerSource)
+    .each(id => amountPerSource[id] = 0);
+
+  //noinspection JSUnresolvedFunction
+  let amountPerTarget = _.chain(data.edges)
+    .groupBy(edge => edge.target)
+    .mapObject(edges => _.reduce(edges, (currentAmount, edge) => currentAmount + edge.size, 0))
+    .value();
+
+  //noinspection JSUnresolvedFunction
+  _.chain(data.nodes)
+    .map(node => node.id)
+    .reject(id => id in amountPerTarget)
+    .each(id => amountPerTarget[id] = 0);
+
+  //noinspection JSUnresolvedFunction
+  return _.mapObject(amountPerSource, (nodeAmount, id) => nodeAmount + amountPerTarget[id]);
 }
 
 

@@ -140,7 +140,7 @@ function setupSigma(data) {
       enableEdgeHovering: true,
       fontStyle: "bold",
       hoverFontStyle: "bold",
-      labelThreshold: 5,
+      labelThreshold: 4,
       minEdgeSize: 0.5,
       maxEdgeSize: 8,
     }

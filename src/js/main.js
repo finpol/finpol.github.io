@@ -75,6 +75,14 @@ const PARTIES = {
 const MIN_NODE_SIZE = 8;
 const MAX_NODE_SIZE = 75;
 
+const OPACITY_INACTIVE_NODE = 0.2;
+
+const COLOR_ACTIVE_EDGE = '#ccc';
+const COLOR_INACTIVE_EDGE = `rgba(204, 204, 204, ${OPACITY_INACTIVE_NODE})`;
+
+const COLOR_ACTIVE_LABEL = '#424242';
+const COLOR_INACTIVE_LABEL = `rgba(67, 67, 67, ${OPACITY_INACTIVE_NODE})`;
+
 $(document).ready(() => {
   setupElements();
   $.getJSON('data.json', data => {
@@ -110,6 +118,8 @@ function setupSigma(data) {
   for (let node of data.nodes) {
     let _class = CLASSES[node.class];
     node.color = _class.color;
+
+    node.labelColor = COLOR_ACTIVE_LABEL;
   }
 
   setNodeSize(data);
@@ -119,7 +129,7 @@ function setupSigma(data) {
     edge.id = nextEdgeId;
     nextEdgeId++;
 
-    edge.color = '#ccc'; // TODO: should remove this
+    edge.color = COLOR_ACTIVE_EDGE; // TODO: should remove this
   }
 
   sigma = new Sigma({
@@ -129,7 +139,7 @@ function setupSigma(data) {
       type: 'canvas'
     }],
     settings: {
-      defaultEdgeColor: '#ccc',
+      defaultEdgeColor: COLOR_ACTIVE_EDGE,
       defaultEdgeHoverColor: '#212121',
       //defaultEdgeType: 'curve', // TODO: should add this
       defaultHoverLabelBGColor: "#607D8B",
@@ -141,6 +151,7 @@ function setupSigma(data) {
       enableEdgeHovering: true,
       fontStyle: "bold",
       hoverFontStyle: "bold",
+      labelColor: 'node',
       labelThreshold: 4,
       maxEdgeSize: MIN_NODE_SIZE,
       minEdgeSize: 0.5,
@@ -265,7 +276,7 @@ function loadEdgesById() {
   let incidentEdges = getIncidentEdges();
 
   //noinspection JSUnresolvedFunction
-  sigma.edgesById = _.chain(adjacentEdges)
+  sigma.edgesByNodeId = _.chain(adjacentEdges)
     .mapObject((nodes, id) => nodes.concat(incidentEdges[id]))
     .mapObject(nodes => _.sortBy(nodes, 'size').reverse())
     .value();
@@ -478,11 +489,12 @@ function showNormalMode() {
     elements.class.hide();
     //noinspection JSUnresolvedFunction
     for (let edge of sigma.graph.edges()) {
-      edge.hidden = false;
+      edge.color = COLOR_ACTIVE_EDGE;
     }
     //noinspection JSUnresolvedFunction
     for (let node of sigma.graph.nodes()) {
-      node.hidden = false;
+      node.opacity = 1;
+      node.labelColor = COLOR_ACTIVE_LABEL;
     }
     //noinspection JSUnresolvedFunction
     sigma.refresh();
@@ -497,13 +509,25 @@ function showActiveMode(node) {
 
   //noinspection JSUnresolvedFunction
   for (let node1 of sigma.graph.nodes()) {
-    node1.hidden = true;
+    node1.opacity = OPACITY_INACTIVE_NODE;
+    node1.labelColor = COLOR_INACTIVE_LABEL;
   }
 
-  node.hidden = false;
+  //noinspection JSUnresolvedFunction
+  for (let edge of sigma.graph.edges()) {
+    edge.color = COLOR_INACTIVE_EDGE;
+  }
+
+  node.opacity = 1;
+  node.labelColor = COLOR_ACTIVE_LABEL;
 
   for (let neighbor of sigma.neighbors[node.id]) {
-    neighbor.hidden = false;
+    neighbor.opacity = 1;
+    neighbor.labelColor = COLOR_ACTIVE_LABEL;
+  }
+
+  for (let edge of sigma.edgesByNodeId[node.id]) {
+    edge.color = COLOR_ACTIVE_EDGE;
   }
 
   //noinspection JSUnresolvedFunction
@@ -516,7 +540,7 @@ function showActiveMode(node) {
   let byOrToWord = node.class == 0 ? "de" : "a";
 
   //noinspection JSUnresolvedFunction
-  _.chain(sigma.edgesById[node.id])
+  _.chain(sigma.edgesByNodeId[node.id])
     .each(edge => {
       totalDonations += edge.size;
 

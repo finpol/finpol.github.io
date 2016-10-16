@@ -163,6 +163,12 @@ function setupSigma(data) {
 
   //noinspection JSUnresolvedFunction
   sigma.bind("clickNode", event => showActiveMode(event.data.node));
+  //noinspection JSUnresolvedFunction
+  sigma.bind("clickStage", event => {
+    if (!event.data.captor.isDragging) {
+      showNormalMode();
+    }
+  });
 }
 
 function setNodeSize(data) {
@@ -468,7 +474,7 @@ function showNormalMode() {
     elements.calculating = true;
     sigma.detail = true;
     //noinspection JSUnresolvedFunction
-    elements.info.delay(400).animate({width: 'hide'}, 350);
+    elements.info.delay(200).animate({width: 'hide'}, 350);
     elements.class.hide();
     //noinspection JSUnresolvedFunction
     for (let edge of sigma.graph.edges()) {
@@ -507,7 +513,7 @@ function showActiveMode(node) {
 
   let totalDonations = 0;
 
-  let byOrToWord = node.class == 0 ? "por" : "a";
+  let byOrToWord = node.class == 0 ? "de" : "a";
 
   //noinspection JSUnresolvedFunction
   _.chain(sigma.edgesById[node.id])

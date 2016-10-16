@@ -610,7 +610,7 @@ function getFormattedDataForNode(node) {
               <br />
               ${addSpanishThousandsSeparator(attrs.votes)} votos recibidos
               <br />
-              ${typeof attrs.seats !== "undefined" ? `${attrs.seats} bancas` : ""}
+              ${typeof attrs.seats !== "undefined" ? `${attrs.seats} ${getSeatWordQuantified(attrs.seats)}` : ""}
       `;
     case 1:
       return "Candidato";
@@ -623,6 +623,10 @@ function getFormattedDataForNode(node) {
     default:
       return "";
   }
+}
+
+function getSeatWordQuantified(seats) {
+  return seats == 1 ? "banca" : "bancas";
 }
 
 function formatAsCurrency(number) {

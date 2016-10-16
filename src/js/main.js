@@ -593,13 +593,18 @@ function showClass(classId) {
 function getFormattedDataForNode(node) {
   switch (node.class) {
     case 0:
-      return `<strong>${PARTIES[node.attributes.party]}</strong>
+      let attrs = node.attributes;
+      return `<strong>${PARTIES[attrs.party]}</strong>
               <br />
-              <strong>${LEVELS[node.attributes.level]}</strong>
-              ${node.attributes.department == 19
-                  ? "" : `<br /><strong>${DEPARTMENTS[node.attributes.department]}</strong>`}
-              ${node.attributes.level == 2
-                  ? `<br /><strong>Primer titular</strong>: ${node.attributes.first_holder}` : ""}
+              <strong>${LEVELS[attrs.level]}</strong>
+              ${attrs.department == 19
+                  ? "" : `<br /><strong>${DEPARTMENTS[attrs.department]}</strong>`}
+              ${attrs.level == 2
+                  ? `<br /><strong>Primer titular</strong>: ${attrs.first_holder}` : ""}
+              <br />
+              ${addSpanishThousandsSeparator(attrs.votes)} votos recibidos
+              <br />
+              ${typeof attrs.seats !== "undefined" ? `${attrs.seats} bancas` : ""}
       `;
     case 1:
       return "Candidato";

@@ -152,7 +152,7 @@ function setupSigma(data) {
       fontStyle: "bold",
       hoverFontStyle: "bold",
       labelColor: 'node',
-      labelThreshold: 4,
+      labelThreshold: 7,
       maxEdgeSize: MIN_NODE_SIZE,
       minEdgeSize: 0.5,
     }

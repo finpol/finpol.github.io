@@ -185,6 +185,44 @@ function setupSigma(data) {
       showNormalMode();
     }
   });
+
+  sigma.ratioSize = getLongestXYDistance(sigma.graph.nodes());
+
+  //noinspection JSUnresolvedFunction
+  sigma.bind("doubleClickNode", event => {
+    let node = event.data.node;
+
+    let neighborsLongestXYDistance = getLongestXYDistance(sigma.neighbors[node.id]);
+
+    console.log(node);
+    console.log(neighborsLongestXYDistance);
+    console.log(sigma.ratioSize);
+
+    //noinspection JSUnresolvedFunction
+    //sigma.cameras[0].goTo({ratio: neighborsLongestXYDistance / sigma.ratioSize, x: node['read_cam0:x'],
+    //  y: node['read_cam0:y']});
+    //noinspection JSUnresolvedFunction
+    Sigma.misc.animation.camera(sigma.cameras[0], {ratio: neighborsLongestXYDistance / sigma.ratioSize,
+      x: node['read_cam0:x'], y: node['read_cam0:y']});
+  });
+}
+
+function getLongestXYDistance(nodes) {
+  if (nodes.length == 0) {
+    return MAX_NODE_SIZE;
+  } else {
+    //noinspection JSUnresolvedFunction
+    let argMaxX = _.max(nodes, node => node.x + node.size);
+    //noinspection JSUnresolvedFunction
+    let argMinX = _.min(nodes, node => node.x - node.size);
+    //noinspection JSUnresolvedFunction
+    let argMaxY = _.max(nodes, node => node.y + node.size);
+    //noinspection JSUnresolvedFunction
+    let argMinY = _.min(nodes, node => node.y - node.size);
+
+    return Math.max(argMaxX.x + argMaxX.size - argMinX.x - argMinX.size,
+        argMaxY.y + argMaxY.size - argMinY.y - argMinY.size);
+  }
 }
 
 function setNodeSize(data) {

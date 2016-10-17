@@ -192,8 +192,8 @@ function setNodeSize(data) {
 
   for (let node of data.nodes) {
     // The size is a linear interpolation wrt the min and max amount, and the min and max node size possible.
-    node.size = ((maxAmount - minAmount) * amountPerNode[node.id]
-      + (MIN_NODE_SIZE * maxAmount - MAX_NODE_SIZE * minAmount)) / (MAX_NODE_SIZE - MIN_NODE_SIZE);
+    node.size = ((MAX_NODE_SIZE - MIN_NODE_SIZE) * amountPerNode[node.id]
+      + (MIN_NODE_SIZE * maxAmount - MAX_NODE_SIZE * minAmount)) / (maxAmount - minAmount);
   }
 }
 

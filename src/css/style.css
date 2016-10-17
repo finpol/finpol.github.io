@@ -529,3 +529,8 @@ input {
   cursor: pointer;
   display: none;
 }
+
+.fb-share-button {
+  margin-right: 6px;
+  vertical-align: top;
+}

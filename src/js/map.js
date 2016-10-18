@@ -100,13 +100,16 @@ function setupElements() {
     info: $("#attributepane"),
     legend_box: $(".box"),
     main_panel: $("#mainpanel"),
+    menu: $('#menu'),
     modal: $('#moreInformationModal'),
+    zoom: $('#zoom'),
   };
   elements.form = elements.main_panel.find("form");
   elements.info_donnees = elements.info.find(".nodeattributes");
   elements.info_name = elements.info.find(".name");
   elements.info_link = elements.info.find(".link");
   elements.info_data = elements.info.find(".data");
+  elements.info_share_data = elements.info.find(".share_data");
   elements.info_p = elements.info.find(".p");
   elements.info_link_ul = elements.info_link.find("ul");
   elements.info_close = elements.info.find(".left-close")
@@ -370,17 +373,14 @@ function setupClassSelection() {
 }
 
 function setupZoomButtons() {
-  let $menu = $("#menu");
-  let $zoom = $("#zoom");
-
   if (window.mobilecheck()) {
     elements.main_panel.hide(0);
-    $menu.show(0);
-    $zoom.css("left", "20%");
-    $menu.click(() => elements.main_panel.fadeToggle());
+    elements.menu.show(0);
+    elements.zoom.css("left", "20%");
+    elements.menu.click(() => elements.main_panel.fadeToggle());
   }
 
-  $zoom.find("div.z").each((i, element) => {
+  elements.zoom.find("div.z").each((i, element) => {
     let $element = $(element);
     let rel = $element.attr("rel");
     if (rel != null) {
@@ -400,7 +400,7 @@ function setupZoomButtons() {
 }
 
 function checkHash() {
-  let hashAnchor = window.location.hash.substr(1);
+  let hashAnchor = decodeURIComponent(window.location.hash.substr(1));
   if (hashAnchor.length > 0) {
     elements.search.search(hashAnchor, true);
     elements.search.clean();
@@ -508,6 +508,9 @@ function showNormalMode() {
     sigma.detail = true;
     //noinspection JSUnresolvedFunction
     elements.info.delay(200).animate({width: 'hide'}, 350);
+    if (window.mobilecheck()) {
+      elements.zoom.show();
+    }
     elements.class.hide();
     //noinspection JSUnresolvedFunction
     for (let edge of sigma.graph.edges()) {
@@ -581,16 +584,34 @@ function showActiveMode(node) {
   elements.info_name.html(`<h3>${node.label}</h3>`);
 
   elements.info_data.html(getFormattedDataForNode(node));
-  elements.info_data.show();
+
+  window.location.hash = encodeURIComponent(node.label);
+
+  let sharedTitle = `${node.label} | ¿De dónde sale el dinero de las campañas políticas?`;
+  let sharedEncodedUrl = encodeURIComponent(window.location);
+
+  elements.info_share_data.html(
+    `<div class="fb-share-button" data-href="${sharedEncodedUrl}" data-layout="button_count" data-size="small" data-mobile-iframe="true"><a class="fb-xfbml-parse-ignore" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=${sharedEncodedUrl}&amp;src=sdkpreparse">Compartir</a></div>
+     <a class="twitter-share-button" href="https://twitter.com/intent/tweet?text=${encodeURIComponent(sharedTitle)}&via=ucudal&url=${sharedEncodedUrl}" data-size="small">Twittear</a>
+     <a href="whatsapp://send" data-text="${sharedTitle}" data-href="${sharedEncodedUrl}" class="wa_btn wa_btn_s" style="display:none">Compartir</a>`
+  );
 
   let receivedOrEmittedWord = node.class == 0 ? "recibidas" : "emitidas";
 
   elements.info_p.html(`${formatAsCurrency(totalDonations)} en donaciones ${receivedOrEmittedWord}`);
-  elements.info.animate({ width: 'show' }, 350);
-  elements.info_donnees.hide();
-  elements.info_donnees.show();
+  elements.info.animate({ width: 'show' }, { duration: 350, complete: () => {
+    FB.XFBML.parse();
+    twttr.widgets.load();
+    if (window.mobilecheck()) {
+      //noinspection JSUnresolvedFunction
+      WASHAREBTN.crBtn();
+    }
+  }});
   sigma.active = node.id;
-  window.location.hash = node.label;
+
+  if (window.mobilecheck()) {
+    elements.zoom.hide();
+  }
 }
 
 function showClass(classId) {
@@ -632,11 +653,10 @@ function showClass(classId) {
     //noinspection JSUnresolvedFunction
     sigma.refresh();
     elements.info_name.html("<b>" + classId + "</b>");
-    elements.info_data.hide();
     elements.info_p.html("Miembros del grupo:");
     elements.info.animate({ width: 'show' }, 350);
     elements.search.clean();
-    elements.clas.hide();
+    elements.class.hide();
     return true;
   }
   return false;

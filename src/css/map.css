@@ -128,6 +128,10 @@ canvas#sigma_bg_1 {
 
 }
 
+#attributepane .share_data {
+  margin-top: 12px;
+}
+
 #attributepane .data .plus {
   background: url('../img/sprite.png') no-repeat -171px -122px;
   width: 22px;

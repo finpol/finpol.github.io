@@ -128,8 +128,6 @@ function setupSigma(data) {
   for (let edge of data.edges) {
     edge.id = nextEdgeId;
     nextEdgeId++;
-
-    edge.color = COLOR_ACTIVE_EDGE; // TODO: should remove this
   }
 
   sigma = new Sigma({
@@ -141,9 +139,8 @@ function setupSigma(data) {
     settings: {
       defaultEdgeColor: COLOR_ACTIVE_EDGE,
       defaultEdgeHoverColor: '#212121',
-      //defaultEdgeType: 'curve', // TODO: should add this
       defaultHoverLabelBGColor: "#607D8B",
-      //defaultLabelSize: 17,
+      //defaultLabelSize: 17, // For taking a screenshot.
       doubleClickZoomDuration: 300,
       edgeColor: 'default',
       edgeHoverColor: 'default',

@@ -33,10 +33,11 @@
   "homepage": "https://github.com/bryant1410/financiamiento-elecciones-2014",
   "dependencies": {
     "jquery": "^3.1.0",
-    "sigma-webpack": "^1.1.4-webpack",
+    "sigma-webpack": "^1.2.0-1",
     "underscore": "^1.8.3"
   },
   "devDependencies": {
+    "babel-cli": "^6.18.0",
     "babel-preset-es2015": "^6.13.2",
     "babel-preset-stage-2": "^6.13.0",
     "babelify": "^7.3.0",

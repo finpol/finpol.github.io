@@ -629,7 +629,7 @@ function getFormattedDataForNode(node) {
               ${attrs.level == 2
                   ? `<br /><strong>Primer titular</strong>: ${attrs.first_holder}` : ""}
               <br />
-              ${addSpanishThousandsSeparator(attrs.votes)} votos recibidos
+              ${addSpanishThousandsSeparator(attrs.votes)} votos
               <br />
               ${typeof attrs.seats !== "undefined" ? `${attrs.seats} ${getSeatWordQuantified(attrs.seats)}` : ""}
       `;

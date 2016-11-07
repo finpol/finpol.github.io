@@ -112,6 +112,14 @@ function setupElements() {
       .click(showNormalMode);
   elements.search = new Search(elements.form.find("#search"));
   elements.class = new Class(elements.form.find("#attributeselect"));
+
+  $(document).keydown(event => {
+    if (event.keyCode == 27) { // ESCAPE key pressed
+      if (sigma.active) {
+        showNormalMode();
+      }
+    }
+  });
 }
 
 function setupSigma(data) {

@@ -389,7 +389,7 @@ function setupZoomButtons() {
 function checkHash() {
   let hashAnchor = window.location.hash.substr(1);
   if (hashAnchor.length > 0) {
-    elements.search.exactMatch = elements.search.search(hashAnchor);
+    elements.search.search(hashAnchor, true);
     elements.search.clean();
   }
 }
@@ -403,7 +403,7 @@ function Search(searchElem) {
   this.input.keydown(event => {
     if (event.which == 13) {
       this.state.addClass("searching");
-      this.search(this.input.val());
+      this.search(this.input.val(), false);
       return false;
     }
   });
@@ -413,7 +413,7 @@ function Search(searchElem) {
       this.close();
     } else {
       this.state.addClass("searching");
-      this.search(stateValue);
+      this.search(stateValue, false);
     }
   });
   this.close = () => {
@@ -428,8 +428,8 @@ function Search(searchElem) {
     this.state.removeClass("searching");
     this.input.val("");
   };
-  this.search = text => {
-    let textRegex = new RegExp(text.toLowerCase());
+  this.search = (text, exactMatch) => {
+    text = text.toLowerCase();
     this.searching = true;
     this.lastSearch = text;
     this.results.empty();
@@ -438,7 +438,11 @@ function Search(searchElem) {
     } else {
       //noinspection JSUnresolvedFunction
       let foundNodes = _.chain(sigma.graph.nodes())
-        .filter(node => textRegex.test(node.label.toLowerCase()))
+        .filter(node =>
+          exactMatch
+            ? node.label.toLowerCase() === text
+            : node.label.toLowerCase().indexOf(text) !== -1
+        )
         .value();
 
       if (foundNodes.length == 0) {

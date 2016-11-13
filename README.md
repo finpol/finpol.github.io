@@ -35,3 +35,7 @@ En la carpeta `scripts` hay algunos scripts ejecutables con [jq](https://stedola
 ```shell
 ./sort.jq -Mf < entrada.json > salida.json
 ```
+
+# Licencia
+
+Este código se libera bajo la licencia [Apache 2.0](https://opensource.org/licenses/Apache-2.0).

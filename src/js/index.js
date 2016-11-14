@@ -2,7 +2,7 @@
   "use strict"; // Start of use strict
 
   // jQuery for page scrolling feature - requires jQuery Easing plugin
-  $('a.page-scroll').bind('click', function(event) {
+  $('a.page-scroll').bind('click', event => {
     var $anchor = $(this);
     $('html, body').stop().animate({
         scrollTop: ($($anchor.attr('href')).offset().top - 50)
@@ -17,9 +17,7 @@
   });
 
   // Closes the Responsive Menu on Menu Item Click
-  $('.navbar-collapse ul li a').click(function() {
-    $('.navbar-toggle:visible').click();
-  });
+  $('.navbar-collapse ul li a').click(() => $('.navbar-toggle:visible').click());
 
   // Offset for Main Navigation
   $('#mainNav').affix({
@@ -48,4 +46,9 @@
     scale: 0.3,
     distance: '0px'
   }, 300);
+
+  // Have to do it here because htmlmin has problems with quotes when using onclick="window.open('...')".
+  $('#informe-1').click(() => window.open("/docs/informe_1_ingresos_y_gastos.pdf"));
+  $('#informe-2').click(() => window.open("/docs/informe_2_financiamiento_privado.pdf"));
+  $('#informe-3').click(() => window.open("/docs/informe_3_gasto_en_publicidad.pdf"));
 })(jQuery); // End of use strict

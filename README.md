@@ -39,3 +39,5 @@ En la carpeta `scripts` hay algunos scripts ejecutables con [jq](https://stedola
 # Licencia
 
 Este código se libera bajo la licencia [Apache 2.0](https://opensource.org/licenses/Apache-2.0).
+
+El favicon viene de [IconArchive](http://www.iconarchive.com/show/sleek-xp-basic-icons-by-hopstarter/Money-icon.html) y no se ha modificado.

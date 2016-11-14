@@ -1,2 +1,3 @@
 User-agent: *
 Disallow:
+Sitemap: https://bryant1410.github.io/financiamiento-elecciones-2014/sitemap.xml

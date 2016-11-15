@@ -2,8 +2,8 @@
   "use strict"; // Start of use strict
 
   // jQuery for page scrolling feature - requires jQuery Easing plugin
-  $('a.page-scroll').bind('click', event => {
-    var $anchor = $(this);
+  $('a.page-scroll').click(event => {
+    var $anchor = $(event.currentTarget);
     $('html, body').stop().animate({
         scrollTop: ($($anchor.attr('href')).offset().top - 50)
     }, 1250, 'easeInOutExpo');

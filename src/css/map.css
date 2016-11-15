@@ -169,29 +169,6 @@ canvas#sigma_bg_1 {
 	bottom: 0;
 }
 
-#jisc {
-  width: 71px;
-  height: 56px;
-  background: url('../img/jisc-logo-small.png') no-repeat;
-  display: inline-block;
-}
-
-#jisc span {
-	display: none;
-}
-
-#oii {
-  width: 227px;
-  height: 56px;
-  background: url('../img/oii_text.png') no-repeat;
-  display: inline-block;
-  margin-right: 10px;
-}
-
-#oii span {
-	display: none;
-}
-
 #maintitle {
   width: 100%;
   height: 72px;
@@ -450,6 +427,10 @@ input {
   height: 60px;
   margin-right: 4px;
   width: 60px;
+}
+
+#menu {
+  background-image: url('../img/menu.png');
 }
 
 #zoom .z[rel=center] {

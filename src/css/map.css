@@ -186,8 +186,8 @@ canvas#sigma_bg_1 {
 }
 
 #mainpanel {
-  margin-top: 50px;
   margin-left: 25px;
+  margin-top: 25px;
   background: rgba(255, 255, 255, 0.8);
   border: 1px solid #ccc;
   z-index: 20;
@@ -201,7 +201,7 @@ canvas#sigma_bg_1 {
 
 #mainpanel .col {
   width: 270px;
-  padding: 18px 18px 18px 18px;
+  padding: 9px 18px 9px 18px;
   margin: 0;
 }
 
@@ -219,7 +219,7 @@ canvas#sigma_bg_1 {
 
 
 #search {
-	padding: 20px 0 0 2px;
+	padding: 10px 0 0 2px;
 }
 
 input {
@@ -245,8 +245,9 @@ input {
 #search .results {
 	display: none;
 	margin: 6px;
-	overflow-y: auto;
-	overflow-x: hidden;
+  max-height: 100px;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 #search .results b {

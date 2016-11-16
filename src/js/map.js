@@ -612,6 +612,7 @@ function showActiveMode(node) {
 
   if (window.mobilecheck()) {
     elements.zoom.hide();
+    elements.main_panel.hide();
   }
 }
 

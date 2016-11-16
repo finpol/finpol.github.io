@@ -588,12 +588,13 @@ function showActiveMode(node) {
   window.location.hash = encodeURIComponent(node.label);
 
   let sharedTitle = `${node.label} | ¿De dónde sale el dinero de las campañas políticas?`;
-  let sharedEncodedUrl = encodeURIComponent(window.location);
+  let sharedUrl = window.location;
+  let sharedEncodedUrl = encodeURIComponent(sharedUrl);
 
   elements.info_share_data.html(
-    `<div class="fb-share-button" data-href="${sharedEncodedUrl}" data-layout="button_count" data-size="small" data-mobile-iframe="true"><a class="fb-xfbml-parse-ignore" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=${sharedEncodedUrl}&amp;src=sdkpreparse">Compartir</a></div>
+    `<div class="fb-share-button" data-href="${sharedUrl}" data-layout="button_count" data-size="small" data-mobile-iframe="true"><a class="fb-xfbml-parse-ignore" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=${sharedEncodedUrl}&amp;src=sdkpreparse">Compartir</a></div>
      <a class="twitter-share-button" href="https://twitter.com/intent/tweet?text=${encodeURIComponent(sharedTitle)}&via=ucudal&url=${sharedEncodedUrl}" data-size="small">Twittear</a>
-     <a href="whatsapp://send" data-text="${sharedTitle}" data-href="${sharedEncodedUrl}" class="wa_btn wa_btn_s" style="display:none">Compartir</a>`
+     <a href="whatsapp://send" data-text="${sharedTitle}" data-href="" class="wa_btn wa_btn_s" style="display:none">Compartir</a>`
   );
 
   let receivedOrEmittedWord = node.class == 0 ? "recibidas" : "emitidas";

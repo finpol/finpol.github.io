@@ -640,11 +640,11 @@ function getFormattedDataForNode(node) {
               ${typeof attrs.seats !== "undefined" ? `${attrs.seats} ${getSeatWordQuantified(attrs.seats)}` : ""}
       `;
     case 1:
-      return "Candidato";
+      return "Candidato donante";
     case 2:
-      return "Empresa";
+      return "Empresa donante";
     case 3:
-      return "Individuo";
+      return "Individuo donante";
     case 4:
       return "Donación anónima";
     default:

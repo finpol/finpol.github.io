@@ -24,7 +24,7 @@
     "watch:bundle": "watchify src/js/map.js -o dist/js/map.js -v",
     "start": "nodemon --exec 'npm run build && babel-node server.js' --ignore dist/",
     "predeploy": "npm run build",
-    "deploy": "gh-pages -d dist"
+    "deploy": "gh-pages -d dist -b master"
   },
   "repository": {
     "type": "git",

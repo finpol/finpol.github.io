@@ -28,14 +28,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://bryant1410@github.com/bryant1410/financiamiento-elecciones-2014.git"
+    "url": "git+https://github.com/finpol/finpol.github.io.git"
   },
   "author": "Santiago Castro",
   "license": "Apache-2.0",
   "bugs": {
-    "url": "https://github.com/bryant1410/financiamiento-elecciones-2014/issues"
+    "url": "https://github.com/github.com/finpol/finpol.github.io/issues"
   },
-  "homepage": "https://github.com/bryant1410/financiamiento-elecciones-2014",
+  "homepage": "https://github.com/github.com/finpol/finpol.github.io",
   "dependencies": {
     "jquery": "^3.1.1",
     "sigma-webpack": "^1.2.0-1",

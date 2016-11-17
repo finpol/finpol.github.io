@@ -4,12 +4,12 @@
       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
       xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
   <url>
-    <loc>https://bryant1410.github.io/financiamiento-elecciones-2014/</loc>
+    <loc>https://finpol.github.io/</loc>
     <changefreq>daily</changefreq>
   </url>
 
   <url>
-    <loc>https://bryant1410.github.io/financiamiento-elecciones-2014/map.html</loc>
+    <loc>https://finpol.github.io/map.html</loc>
     <changefreq>daily</changefreq>
   </url>
 </urlset>

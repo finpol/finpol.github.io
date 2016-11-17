@@ -564,7 +564,10 @@ function showActiveMode(node) {
 
   elements.info_p.html(`${formatAsCurrency(totalDonations)} en donaciones ${receivedOrEmittedWord}`);
   elements.info.animate({ width: 'show' }, { duration: 350, complete: () => {
-    FB.XFBML.parse();
+    if (typeof FB !== "undefined") {
+      //noinspection JSUnresolvedFunction
+      FB.getLoginStatus(() => FB.XFBML.parse()); // Guard to check if FB.init was completed.
+    }
     twttr.widgets.load();
     if (window.mobilecheck()) {
       //noinspection JSUnresolvedFunction

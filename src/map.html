@@ -46,6 +46,8 @@
             xfbml      : true,
             version    : 'v2.8'
         });
+
+        FB.XFBML.parse(); // Triggered in case the right panel is shown before this event.
     };
 
     (function(d, s, id){

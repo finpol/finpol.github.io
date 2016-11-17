@@ -170,7 +170,6 @@ function setupSigma(data) {
   sigma.active = false;
   sigma.detail = false;
 
-  //noinspection JSUnresolvedFunction
   sigma.nodesById = _.chain(sigma.graph.nodes())
     .groupBy(node => node.id)
     .mapObject(nodes => nodes[0])
@@ -194,9 +193,7 @@ function setupSigma(data) {
 function setNodeSize(data) {
   let amountPerNode = getAmountPerNode(data);
 
-  //noinspection JSUnresolvedFunction
   let minAmount = _.min(amountPerNode, amount => amount);
-  //noinspection JSUnresolvedFunction
   let maxAmount = _.max(amountPerNode, amount => amount);
 
   for (let node of data.nodes) {
@@ -207,31 +204,26 @@ function setNodeSize(data) {
 }
 
 function getAmountPerNode(data) {
-  //noinspection JSUnresolvedFunction
   let amountPerSource = _.chain(data.edges)
     .groupBy(edge => edge.source)
     .mapObject(edges => _.reduce(edges, (currentAmount, edge) => currentAmount + edge.size, 0))
     .value();
 
-  //noinspection JSUnresolvedFunction
   _.chain(data.nodes)
     .map(node => node.id)
     .reject(id => id in amountPerSource)
     .each(id => amountPerSource[id] = 0);
 
-  //noinspection JSUnresolvedFunction
   let amountPerTarget = _.chain(data.edges)
     .groupBy(edge => edge.target)
     .mapObject(edges => _.reduce(edges, (currentAmount, edge) => currentAmount + edge.size, 0))
     .value();
 
-  //noinspection JSUnresolvedFunction
   _.chain(data.nodes)
     .map(node => node.id)
     .reject(id => id in amountPerTarget)
     .each(id => amountPerTarget[id] = 0);
 
-  //noinspection JSUnresolvedFunction
   return _.mapObject(amountPerSource, (nodeAmount, id) => nodeAmount + amountPerTarget[id]);
 }
 
@@ -241,18 +233,15 @@ function loadNeighbors() {
   let adjacencies = getAdjacencies();
   let incidents = getIncidents();
 
-  //noinspection JSUnresolvedFunction
   sigma.neighbors = _.mapObject(adjacencies, (nodes, id) => nodes.concat(incidents[id]));
 }
 
 function getAdjacencies() {
-  //noinspection JSUnresolvedFunction
   let adjacencies = _.chain(sigma.graph.edges())
     .groupBy(edge => edge.source)
     .mapObject(edges => _.map(edges, edge => sigma.nodesById[edge.target]))
     .value();
 
-  //noinspection JSUnresolvedFunction
   _.chain(sigma.graph.nodes())
     .map(node => node.id)
     .reject(id => id in adjacencies)
@@ -262,13 +251,11 @@ function getAdjacencies() {
 }
 
 function getIncidents() {
-  //noinspection JSUnresolvedFunction
   let incidents = _.chain(sigma.graph.edges())
     .groupBy(edge => edge.target)
     .mapObject(edges => _.map(edges, edge => sigma.nodesById[edge.source]))
     .value();
 
-  //noinspection JSUnresolvedFunction
   _.chain(sigma.graph.nodes())
     .map(node => node.id)
     .reject(id => id in incidents)
@@ -284,7 +271,6 @@ function loadEdgesById() {
   let adjacentEdges = getAdjacentEdges();
   let incidentEdges = getIncidentEdges();
 
-  //noinspection JSUnresolvedFunction
   sigma.edgesByNodeId = _.chain(adjacentEdges)
     .mapObject((nodes, id) => nodes.concat(incidentEdges[id]))
     .mapObject(nodes => _.sortBy(nodes, 'size').reverse())
@@ -292,12 +278,10 @@ function loadEdgesById() {
 }
 
 function getAdjacentEdges() {
-  //noinspection JSUnresolvedFunction
   let adjacentEdges = _.chain(sigma.graph.edges())
     .groupBy(edge => edge.source)
     .value();
 
-  //noinspection JSUnresolvedFunction
   _.chain(sigma.graph.nodes())
     .map(node => node.id)
     .reject(id => id in adjacentEdges)
@@ -307,12 +291,10 @@ function getAdjacentEdges() {
 }
 
 function getIncidentEdges() {
-  //noinspection JSUnresolvedFunction
   let incidentEdges = _.chain(sigma.graph.edges())
     .groupBy(edge => edge.target)
     .value();
 
-  //noinspection JSUnresolvedFunction
   _.chain(sigma.graph.nodes())
     .map(node => node.id)
     .reject(id => id in incidentEdges)
@@ -324,13 +306,11 @@ function getIncidentEdges() {
 
 
 function loadNodesByClass() {
-  //noinspection JSUnresolvedFunction
   let nodesByClass = _.chain(sigma.graph.nodes())
     .groupBy(node => node.class)
     .mapObject(nodes => _.map(nodes, node => node.id))
     .value();
 
-  //noinspection JSUnresolvedFunction
   for (let classId of _.keys(CLASSES)) {
     let _class = CLASSES[classId];
     _class.nodes = nodesByClass[classId];
@@ -338,7 +318,6 @@ function loadNodesByClass() {
 }
 
 function setupLegend() {
-  //noinspection JSUnresolvedFunction
   _.chain(_.values(CLASSES))
     .forEach(_class => {
       $(
@@ -353,7 +332,6 @@ function setupLegend() {
 }
 
 function setupClassSelection() {
-  //noinspection JSUnresolvedFunction
   elements.class.content(
     _.chain(_.keys(CLASSES))
       .map(classId => {
@@ -386,10 +364,8 @@ function setupZoomButtons() {
     if (rel != null) {
       $element.click(() => {
         if (rel == "center") {
-          //noinspection JSUnresolvedFunction
           sigma.cameras[0].goTo({ratio: 1, x: 0, y: 0});
         } else {
-          //noinspection JSUnresolvedFunction
           Sigma.utils.zoomTo(sigma.cameras[0], 0, 0, rel == "in" ? 0.5 : 1.5, {
             duration: sigma.settings('doubleClickZoomDuration'),
           });
@@ -444,7 +420,6 @@ function Search(searchElem) {
       this.searching = true;
       this.lastSearch = text;
       this.results.empty();
-      //noinspection JSUnresolvedFunction
       let foundNodes = _.chain(sigma.graph.nodes())
         .filter(node =>
           exactMatch
@@ -507,16 +482,13 @@ function showNormalMode() {
       elements.zoom.show();
     }
     elements.class.hide();
-    //noinspection JSUnresolvedFunction
     for (let edge of sigma.graph.edges()) {
       edge.color = COLOR_ACTIVE_EDGE;
     }
-    //noinspection JSUnresolvedFunction
     for (let node of sigma.graph.nodes()) {
       node.opacity = 1;
       node.labelColor = COLOR_ACTIVE_LABEL;
     }
-    //noinspection JSUnresolvedFunction
     sigma.refresh();
     sigma.active = false;
     elements.calculating = false;
@@ -527,13 +499,11 @@ function showNormalMode() {
 function showActiveMode(node) {
   sigma.detail = true;
 
-  //noinspection JSUnresolvedFunction
   for (let node1 of sigma.graph.nodes()) {
     node1.opacity = OPACITY_INACTIVE_NODE;
     node1.labelColor = COLOR_INACTIVE_LABEL;
   }
 
-  //noinspection JSUnresolvedFunction
   for (let edge of sigma.graph.edges()) {
     edge.color = COLOR_INACTIVE_EDGE;
   }
@@ -550,7 +520,6 @@ function showActiveMode(node) {
     edge.color = COLOR_ACTIVE_EDGE;
   }
 
-  //noinspection JSUnresolvedFunction
   sigma.refresh();
 
   elements.info_link_ul.empty();
@@ -559,7 +528,6 @@ function showActiveMode(node) {
 
   let byOrToWord = node.class == 0 ? "de" : "a";
 
-  //noinspection JSUnresolvedFunction
   _.chain(sigma.edgesByNodeId[node.id])
     .each(edge => {
       totalDonations += edge.size;
@@ -616,13 +584,10 @@ function showClass(classId) {
   if (typeof _class !== "undefined" && _class.nodes.length > 0) {
     sigma.detail = true;
 
-    //noinspection JSUnresolvedFunction
     for (let edge of sigma.graph.edges()) {
       edge.hidden = false;
       edge.attributes.lineWidth = false;
-      //edge.attributes.color = false;
     }
-    //noinspection JSUnresolvedFunction
     for (let node of sigma.graph.nodes()) {
       node.hidden = true;
     }
@@ -638,7 +603,7 @@ function showClass(classId) {
         classNode.attributes.lineWidth = false;
         classNode.attributes.color = classNode.color;
         $(
-          `<li class="membership"><!--suppress JSUnresolvedFunction -->
+          `<li class="membership">
             <a href="#${classNode.label}">${classNode.label}</a>
           </li>`
         )
@@ -647,7 +612,6 @@ function showClass(classId) {
       }
     }
     CLASSES[classId].nodes = classHiddenNodesIds;
-    //noinspection JSUnresolvedFunction
     sigma.refresh();
     elements.info_name.html("<b>" + classId + "</b>");
     elements.info_p.html("Miembros del grupo:");
@@ -714,8 +678,10 @@ window.mobilecheck = function() {
   return check;
 };
 
+
 // To remove accents:
 // http://stackoverflow.com/a/18391901/1165181
+
 /*
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.

@@ -556,7 +556,7 @@ function showActiveMode(node) {
 
   elements.info_share_data.html(
     `<div class="fb-share-button" data-href="${sharedUrl}" data-layout="button_count" data-size="small" data-mobile-iframe="true"><a class="fb-xfbml-parse-ignore" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=${sharedEncodedUrl}&amp;src=sdkpreparse">Compartir</a></div>
-     <a class="twitter-share-button" href="https://twitter.com/intent/tweet?text=${encodeURIComponent(sharedTitle)}&via=ucudal&url=${sharedEncodedUrl}" data-size="small">Twittear</a>
+     <a class="twitter-share-button" href="https://twitter.com/intent/tweet?text=${encodeURIComponent(sharedTitle)}&via=UCUoficial&url=${sharedEncodedUrl}" data-size="small">Twittear</a>
      <a href="whatsapp://send" data-text="${sharedTitle}" data-href="" class="wa_btn wa_btn_s" style="display:none">Compartir</a>`
   );
 

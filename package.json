@@ -33,9 +33,9 @@
   "author": "Santiago Castro",
   "license": "Apache-2.0",
   "bugs": {
-    "url": "https://github.com/github.com/finpol/finpol.github.io/issues"
+    "url": "https://github.com/finpol/finpol.github.io/issues"
   },
-  "homepage": "https://github.com/github.com/finpol/finpol.github.io",
+  "homepage": "https://github.com/finpol/finpol.github.io",
   "dependencies": {
     "jquery": "^3.1.1",
     "sigma-webpack": "^1.2.0-1",

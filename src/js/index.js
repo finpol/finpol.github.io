@@ -51,4 +51,5 @@
   $('#informe-1').click(() => window.open("/docs/informe_1_ingresos_y_gastos.pdf"));
   $('#informe-2').click(() => window.open("/docs/informe_2_financiamiento_privado.pdf"));
   $('#informe-3').click(() => window.open("/docs/informe_3_gasto_en_publicidad.pdf"));
+  $('#informe-4').click(() => window.open("/docs/05_12_2016_NTN_Financiamiento_Politico_Cierre.mp3"));
 })(jQuery); // End of use strict
